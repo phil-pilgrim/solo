@@ -455,16 +455,12 @@ var propcAsBlocksXml = function () {
     return code;
 };
 
-
-
 /**
  * Initialize Blockly
  *
- * Called on page load. Loads a Blockly project onto the editor pallet
- *
- * @param {!Blockly} blockly Instance of Blockly from iframe.
+ * Called on page load. Sets up the Ace Editor.
  */
-function init(blockly) {
+function initializeAceEditor() {
     if(!codePropC) {
         codePropC = ace.edit("code-propc");
         codePropC.setTheme("ace/theme/chrome");
@@ -509,17 +505,6 @@ function init(blockly) {
         codeXml.setTheme("ace/theme/chrome");
         codeXml.getSession().setMode("ace/mode/xml");
         //codeXml.setReadOnly(true);
-    }
-
-    window.Blockly = blockly;
-
-    if (projectData) {
-        if ( ! projectData['code'] || projectData['code'].length < 50) {
-            projectData['code'] = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
-        }
-        if (projectData['board'] !== 'propcfile') {
-            loadToolbox(projectData['code']);
-        }
     }
 }
 

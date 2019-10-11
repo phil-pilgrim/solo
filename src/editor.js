@@ -443,12 +443,12 @@ $( () => {
                         console.error(objError.message);
                     }
                 // No viable project available, so redirect to index page.
-                window.location.href = (isOffline) ? 'index.html' : baseUrl;
+                //window.location.href = (isOffline) ? 'index.html' : baseUrl;
             }
         }
         else {
             // No viable project available, so redirect to index page.
-            window.location.href = (isOffline) ? 'index.html' : baseUrl;
+            //window.location.href = (isOffline) ? 'index.html' : baseUrl;
         }
 
     }  // End of offline mode
@@ -824,44 +824,35 @@ function setupWorkspace(data, callback) {
     // Set various project settings based on the project board type
     // NOTE: This function is in propc.js
     setProfile(projectData['board']);
+    initToolbox(projectData);
 
     // Determine if this is a pure C project
     if (projectData['board'] !== 'propcfile') {
-        initToolbox(projectData['board'], []);
-
         // Reinstate key bindings from block workspace if this is not a code-only project.
-        if (Blockly.codeOnlyKeybind === true) {
-            Blockly.bindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
-            Blockly.codeOnlyKeybind = false;
-        }
+        Blockly.bindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
+        Blockly.codeOnlyKeybind = false;
 
         // Create UI block content from project details
         renderContent('blocks');
-
-        // Set the help link to the ab-blocks or s3 reference
-        // TODO: modify blocklyc.html/jsp and use an id or class selector
-        if (projectData.board === 's3') {
-            $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
-        } else {
-            $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
-        }
     } else {
-        // No, init the blockly interface
-        init(Blockly);
-
         // Remove keybindings from block workspace if this is a code-only project.
         Blockly.unbindEvent_(document, 'keydown', null, Blockly.onKeyDown_);
         Blockly.codeOnlyKeybind = true;
 
-        // Show PropC editing UI elements
-        $('.propc-only').removeClass('hidden');
-
         // Create UI block content from project details
         renderContent('propc');
+    }
 
-        // Set the help link to the prop-c reference
-        // TODO: modify blocklyc.html/jsp and use an id or class selector
+
+    // Set the help link to the ab-blocks or s3 reference
+    // TODO: modify blocklyc.html/jsp and use an id or class selector
+    if (projectData.board === 'propcfile') {
+        $('.propc-only').removeClass('hidden');
         $('#online-help').attr('href', 'https://learn.parallax.com/support/C/propeller-c-reference');
+    } else if (projectData.board === 's3') {
+        $('#online-help').attr('href', 'https://learn.parallax.com/s3-blocks');
+    } else {
+        $('#online-help').attr('href', 'https://learn.parallax.com/ab-blocks');
     }
 
 
@@ -1510,7 +1501,7 @@ function uploadMergeCode(append) {
             window.localStorage.removeItem(tempProjectStoreName);
 
             window.location = 'blocklyc.html';
-            }
+        }
     }
 
     if (uploadedXML !== '') {
@@ -1588,7 +1579,7 @@ function uploadMergeCode(append) {
         ClearBlocklyWorkspace();
 
         // This call fails because there is no Blockly workspace context
-        loadToolbox(projectData['code']);
+        loadWorkspaceXml(projectData, Blockly.getMainWorkspace());
 
         // CAUTION: This call can redirect to the home page
         clearUploadInfo(false);
@@ -1600,7 +1591,7 @@ function uploadMergeCode(append) {
  *
  * @param profileName
  */
-function initToolbox(profileName) {
+function initToolbox(data) {
 
     // TODO: Verify that custom fonts are required
     var ff = getURLParameter('font');
@@ -1623,10 +1614,10 @@ function initToolbox(profileName) {
     // Options are described in detail here:
     // https://developers.google.com/blockly/guides/get-started/web#configuration
     const blocklyOptions = {
-        toolbox: filterToolbox(profileName),
+        toolbox: filterToolbox(data['board']),
         trashcan: true,
         media: cdnUrl + 'images/blockly/',
-        readOnly: (profileName === 'propcfile'),
+        readOnly: (data['board'] === 'propcfile'),
         //path: cdnUrl + 'blockly/',
         comments: false,
 
@@ -1649,11 +1640,16 @@ function initToolbox(profileName) {
 
     blocklyWorkSpace = Blockly.inject('content_blocks', blocklyOptions);
 
-    init(Blockly);
+    if (!data['code'] || data['code'].length < 50) {
+        data['code'] = '<xml xmlns="http://www.w3.org/1999/xhtml"></xml>';
+    }
+    if (data['board'] !== 'propcfile') {
+        loadWorkspaceXml(data['code'], blocklyWorkSpace);
+    }
 
     // TODO: find a better way to handle this.
     // https://groups.google.com/forum/#!topic/blockly/SgJoEEXuzsg
-    Blockly.mainWorkspace.createVariable(Blockly.LANG_VARIABLES_GET_ITEM);
+    blocklyWorkSpace.createVariable(Blockly.LANG_VARIABLES_GET_ITEM);
 }
 
 
@@ -1661,11 +1657,8 @@ function initToolbox(profileName) {
  *
  * @param xmlText
  */
-function loadToolbox(xmlText) {
-    if (Blockly.mainWorkspace) {
-        let xmlDom = Blockly.Xml.textToDom(xmlText);
-        Blockly.Xml.domToWorkspace(xmlDom, Blockly.mainWorkspace);
-    }
+function loadWorkspaceXml(xmlText, blocklyWorkSpace) {
+    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(xmlText), blocklyWorkSpace);
 }
 
 
