@@ -68,8 +68,27 @@ Blockly.FieldCode.prototype.clone = function() {
 
 /**
  * Mouse cursor style when over the hotspot that initiates the editor.
+ * @type {boolean}
+ * @const
  */
 Blockly.FieldCode.prototype.CURSOR = 'editable';
+
+/**
+ * Editable fields are saved by the XML renderer, non-editable fields are not.
+ * Editable fields usually show some sort of UI indicating they are editable.
+ * They will also be saved by the XML renderer.
+ * @type {boolean}
+ * @const
+ */
+ Blockly.FieldCode.prototype.EDITABLE = true;
+
+/**
+ * Serializable fields are saved by the XML renderer, non-serializable fields
+ * are not. Editable fields should also be serializable.
+ * @type {boolean}
+ * @const
+ */
+Blockly.FieldCode.prototype.SERIALIZABLE = true;
 
 /**
  * Close the code picker if this input is being deleted.
