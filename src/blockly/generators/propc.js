@@ -698,6 +698,58 @@ Blockly.Input.prototype.getRange = function() {
     return this.inputRange;
 }
 
+/**
+ * Extends Blockly.Toolbox to allow the XML tree that makes up the Toolbox (block menu).
+ * @returns the XML tree that defines the toolbox's contents.
+ */
+Blockly.Toolbox.prototype.getTree = function() {
+    return this.tree_;
+}
+
+/**
+ * Extends Blockly.Toolbox to retrieve the list of blocks in the toolbox menu as an array of 
+ * strings representing each of the block types in the menu.
+ * @note This function assumes that the menu is at most two layers deep, and it MANUALLY
+ * inserts the blocks from the VARIABLES and FUNCTIONS categories, since those categories are
+ * dynamically regenerated.
+ * @returns an array of block types as strings.
+ */
+Blockly.Toolbox.prototype.getAllBlockTypes = function() {
+    // Start with blocks from dynamic menus
+    var blockList = ['variables_get', 'variables_set', 'procedures_defnoreturn', 'procedures_callnoreturn'];
+
+    // Get the XML tree from the toolbox
+    var treeChildren = this.tree_.getChildren();
+
+    // iterate through the XML tree
+    for (let i = 0; i < treeChildren.length; i++) {
+        var childElement = treeChildren[i].blocks;
+
+        // if the category is a list of blocks, extract the type of each block and add it to the array to be returned
+        if (childElement && Array.isArray(childElement) && childElement.length > 0) {
+            for (let j = 0; j < childElement.length; j++) {
+                blockList.push(childElement[j].attributes.type.value);
+            };
+
+        // else if the category has subcategories, iterate through those
+        } else if (childElement && Array.isArray(childElement) && childElement.length === 0) {
+            var treeGrandchildren = treeChildren[i].getChildren();
+
+            // extract the block types from each subcategory
+            for (let k = 0; k < treeGrandchildren.length; k++) {
+                var grandchildElement = treeGrandchildren[k].blocks;
+                if (grandchildElement && Array.isArray(grandchildElement) && grandchildElement.length > 0) {
+                    for (let l = 0; l < grandchildElement.length; l++) {
+                        blockList.push(grandchildElement[l].attributes.type.value);
+                    };
+                }                
+            }
+        }
+    };
+
+    // remove any duplicates and return the list of block types in the toolbox
+    return blockList.sortedUnique();
+}
 
 // TODO: Remove the following overrides after updating to a blockly core with these patches (targeted for 2019Q4).
 /**

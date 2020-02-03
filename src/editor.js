@@ -858,6 +858,22 @@ function resetToolBoxSizing(resizeDelay, centerBlocks) {
 
 
 /**
+ * Check if blocks in the project are available in the toolbox, 
+ * and disable/warn blocks that are not.
+ */
+function checkBlockAvailability() {
+    var projectBlocks = Blockly.getMainWorkspace().getAllBlocks();
+    var toolboxBlocks = Blockly.getMainWorkspace().getToolbox().getAllBlockTypes();
+    for (let i = 0; i < projectBlocks.length; i++) {
+        if (toolboxBlocks.indexOf(projectBlocks[i].type) === -1) {
+            projectBlocks[i].setDisabled(true);
+            projectBlocks[i].setWarningText('WARNING: This block is not available in the toolbox for this project\'s board type and it has been disabled.  To continue using this block, right-click this block and select "enable".');
+        }
+    }
+}
+
+
+/**
  * Populate the projectData global
  *
  * @param {{}} data is the current project object
@@ -918,6 +934,9 @@ function setupWorkspace(data, callback) {
     if (callback) {
         callback();
     }
+
+    // Check if blocks are available in the toolbox and warn/disable is not
+    setTimeout(checkBlockAvailability, 1000);
 }
 
 
