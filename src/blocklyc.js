@@ -520,7 +520,7 @@ function cloudCompile(text, action, successHandler) {
             postUrl = 'http://' + window.location.hostname + ':5001/single/prop-c/' + action;
         }
         else {
-            postUrl = 'https://' + window.location.hostname + ':443/single/prop-c/' + action;
+            postUrl = 'https://solo.parallax.com:443/single/prop-c/' + action;
         }
 
         $.ajax({
