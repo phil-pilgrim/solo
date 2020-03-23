@@ -1764,7 +1764,7 @@ xmlToolbox += '    	        <mutation xmlns="http://www.w3.org/1999/xhtml" field
 xmlToolbox += '    	        </mutation>';
 xmlToolbox += '    	        <field name="EDIT">FALSE</field>';
 xmlToolbox += '    	    </block>';
-xmlToolbox += '    	    <block type="custom_code_multiple" id="I8Hbr|Y[OIg5]+~y@Lk7" x="-713" y="-410">';
+xmlToolbox += '    	    <block type="custom_code_multiple" id="I8Hbr|Y[OIg5]+~y@Lk7">';
 xmlToolbox += '    	        <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Rotate Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;_currpos[2]&quot;}">';
 xmlToolbox += '    	        </mutation>';
 xmlToolbox += '    	        <field name="EDIT">FALSE</field>';
