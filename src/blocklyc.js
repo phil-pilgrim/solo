@@ -150,30 +150,6 @@ var graph_csv_data = new Array;
 
 
 /**
- * TODO: Identify the purpose of this variable
- *
- * @type {null}
- */
-var active_connection = null;
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {string}
- */
-var connString = '';
-
-
-/**
- * TODO: Identify the purpose of this variable
- *
- * @type {boolean}
- */
-var connStrYet = false;
-
-
-/**
  * Graph system settings
  *
  * @type {{graph_type: string, fullWidth: boolean, showPoint: boolean, refreshRate: number, axisX: {onlyInteger: boolean, type: *}, sampleTotal: number}}
@@ -490,12 +466,30 @@ function cloudCompile(text, action, successHandler) {
         $("#compile-console").val('Compile... ');
         $('#compile-dialog').modal('show');
 
-        let terminalNeeded = false;
+        let terminalNeeded = null;
 
-        if (propcCode.indexOf("SERIAL_TERMINAL USED") > -1)
-            terminalNeeded = 'term';
-        else if (propcCode.indexOf("SERIAL_GRAPHING USED") > -1)
-            terminalNeeded = 'graph';
+            // TODO: propc editor needs UI for settings for terminal and graphing
+        if (projectData.board !== 'propcfile') {
+            let consoleBlockList = [
+                'console_print', 'console_print_variables', 'console_print_multiple', 
+                'console_scan_text', 'console_scan_number', 'console_newline', 
+                'console_clear', 'console_move_to_position', 'oled_font_loader', 
+                'activitybot_display_calibration', 'scribbler_serial_send_text', 
+                'scribbler_serial_send_char', 'scribbler_serial_send_decimal', 
+                'scribbler_serial_send_decimal', 'scribbler_serial_send_ctrl', 
+                'scribbler_serial_cursor_xy'
+            ]
+
+            let consoleBlockCount = 0;
+            for (let i = 0; i < consoleBlockList.length; i++) {
+                consoleBlockCount += Blockly.getMainWorkspace().getBlocksByType(consoleBlockList[i]).length;
+            }
+
+            if (consoleBlockCount > 0)
+                terminalNeeded = 'term';
+            else if (Blockly.getMainWorkspace().getBlocksByType('graph_settings').length > 0)
+                terminalNeeded = 'graph';
+        }
 
         // Contact the container running cloud compiler. If the browser is
         // connected via https, direct the compile request to the same port and
@@ -590,7 +584,7 @@ function loadInto(modal_message, compile_command, load_option, load_action) {
                     type: 'load-prop',
                     action: load_action,
                     payload: data.binary,
-                    debug: (terminalNeeded === 'term' || terminalNeeded === 'graph') ? terminalNeeded : 'none',
+                    debug: (terminalNeeded) ? terminalNeeded : 'none',
                     extension: data.extension,
                     portPath: getComPort()
                 };
@@ -679,8 +673,13 @@ function serial_console() {
     clientService.sendCharacterStreamTo = 'term';
     
     if (clientService.type !== 'ws') {   // HTTP client
-
         if (clientService.portsAvailable) {
+            // Container and flag needed to recieve and parse initial connection 
+            // string before serial data begins streaming in.
+            var connString = '';
+            var connStrYet = false;
+
+            // open a websocket to the BPC for just the serial comms
             var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
@@ -688,14 +687,16 @@ function serial_console() {
                 connString = '';
                 connStrYet = false;
                 connection.send('+++ open port ' + getComPort() + (baudrate ? ' ' + baudrate : ''));
-                active_connection = connection;
+                clientService.activeConnection = connection;
             };
+
             // Log errors
             connection.onerror = function (error) {
                 console.log('WebSocket Error');
                 console.log(error);
             };
 
+            // Receive characters
             connection.onmessage = function (e) {
                 // incoming data is base64 encoded
                 var c_buf = atob(e.data);
@@ -713,9 +714,10 @@ function serial_console() {
                 pTerm.focus();
             };
 
+            // When the user closed the console, close the serial comms connection
             $('#console-dialog').on('hidden.bs.modal', function () {
                 clientService.sendCharacterStreamTo = null;
-                active_connection = null;
+                clientService.activeConnection = null;
                 connString = '';
                 connStrYet = false;
                 connection.close();
@@ -723,14 +725,16 @@ function serial_console() {
                 pTerm.display(null);
             });
         } else {
-            active_connection = 'simulated';
+            // Remove any previous connection
+            clientService.activeConnection = null;
 
+            // Display a "No connected devices" message in the terminal
             displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
             pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
 
+            // Clear the terminal if the user closes it.
             $('#console-dialog').on('hidden.bs.modal', function () {
                 clientService.sendCharacterStreamTo = null;
-                active_connection = null;
                 displayTerminalConnectionStatus(null);
                 pTerm.display(null);
             });
@@ -746,13 +750,18 @@ function serial_console() {
             action: 'open'
         };
 
-        active_connection = 'websocket';
-        displayTerminalConnectionStatus([
-            Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
-            msg_to_send.portPath,
-            Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
-            msg_to_send.baudrate
-        ].join[' ']);
+        if (msg_to_send.portPath !== 'none') {
+            displayTerminalConnectionStatus([
+                Blockly.Msg.DIALOG_TERMINAL_CONNECTION_ESTABLISHED,
+                msg_to_send.portPath,
+                Blockly.Msg.DIALOG_TERMINAL_AT_BAUDRATE,
+                msg_to_send.baudrate
+            ].join[' ']);
+        } else {
+            displayTerminalConnectionStatus(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES_TO_CONNECT);
+            pTerm.display(Blockly.Msg.DIALOG_TERMINAL_NO_DEVICES + '\n');
+        }
+
         clientService.activeConnection.send(JSON.stringify(msg_to_send));
 
         $('#console-dialog').on('hidden.bs.modal', function () {
@@ -760,7 +769,6 @@ function serial_console() {
             if (msg_to_send.action !== 'close') { // because this is getting called multiple times...?
                 msg_to_send.action = 'close';
                 displayTerminalConnectionStatus(null);
-                active_connection = null;
                 clientService.activeConnection.send(JSON.stringify(msg_to_send));
             }
             pTerm.display(null);
@@ -775,10 +783,7 @@ function serial_console() {
  * @param {string} connectionInfo text to display above the console or graph
  */
 function displayTerminalConnectionStatus(connectionInfo) {
-    if (!connectionInfo) {
-        connectionInfo = '';
-    }
-    $('.connection-string').html(connectionInfo);
+    $('.connection-string').html(connectionInfo ? connectionInfo : '');
 }
 
 
@@ -787,63 +792,8 @@ function displayTerminalConnectionStatus(connectionInfo) {
  */
 function graphing_console() {
     clientService.sendCharacterStreamTo = 'graph';
-    var propcCode = Blockly.propc.workspaceToCode(Blockly.mainWorkspace);
 
-    // If there are graph settings, extract them
-    var graph_settings_start = propcCode.indexOf("// GRAPH_SETTINGS_START:");
-    var graph_labels_start = propcCode.indexOf("// GRAPH_LABELS_START:");
-
-    if (graph_settings_start > -1 && graph_labels_start > -1) {
-        var graph_settings_end = propcCode.indexOf(":GRAPH_SETTINGS_END //") + 22;
-        var graph_settings_temp = propcCode.substring(graph_settings_start, graph_settings_end).split(':');
-        var graph_settings_str = graph_settings_temp[1].split(',');
-
-        // GRAPH_SETTINGS_START:rate,x_axis_val,x_axis_type,y_min,y_max:GRAPH_SETTINGS_END //
-
-        var graph_labels_end = propcCode.indexOf(":GRAPH_LABELS_END //") + 20;
-        var graph_labels_temp = propcCode.substring(graph_labels_start, graph_labels_end).split(':');
-        graph_labels = graph_labels_temp[1].split(',');
-
-        graph_options.refreshRate = Number(graph_settings_str[0]);
-
-        graph_options.graph_type = graph_settings_str[2];
-        if (Number(graph_settings_str[3]) !== 0 || Number(graph_settings_str[4]) !== 0) {
-            graph_options.axisY = {
-                type: Chartist.AutoScaleAxis,
-                low: Number(graph_settings_str[3]),
-                high: Number(graph_settings_str[4]),
-                onlyInteger: true
-            };
-        } else {
-            graph_options.axisY = {
-                type: Chartist.AutoScaleAxis,
-                onlyInteger: true
-            };
-        }
-        $('#graph_x-axis_label').css('display', 'block');
-        graph_options.showPoint = false;
-        graph_options.showLine = true;
-        if (graph_settings_str[2] === 'X') {
-            $('#graph_x-axis_label').css('display', 'none');
-            if (Number(graph_settings_str[5]) !== 0 || Number(graph_settings_str[6]) !== 0) {
-                graph_options.axisX = {
-                    type: Chartist.AutoScaleAxis,
-                    low: Number(graph_settings_str[5]),
-                    high: Number(graph_settings_str[6]),
-                    onlyInteger: true
-                };
-            } else {
-                graph_options.axisX = {
-                    type: Chartist.AutoScaleAxis,
-                    onlyInteger: true
-                };
-            }
-            graph_options.showPoint = true;
-            graph_options.showLine = false;
-        }
-
-        if (graph_options.graph_type === 'S' || graph_options.graph_type === 'X')
-            graph_options.sampleTotal = Number(graph_settings_str[1]);
+    if (getGraphSettingsFromBlocks()) {
 
         if (graph === null) {
             graph_reset();
@@ -856,20 +806,20 @@ function graphing_console() {
             graph.update(graph_data, graph_options);
         }
 
-        if (clientService.type !== 'ws' && clientService.portsAvailable) {
+        if (clientService.type === 'http' && clientService.portsAvailable) {
+            // Container and flag needed to recieve and parse initial connection 
+            // string before serial data begins streaming in.
+            var connString = '';
+            var connStrYet = false;
+
             var connection = new WebSocket(clientService.url("serial.connect", "ws"));
 
             // When the connection is open, open com port
             connection.onopen = function () {
-                if (baudrate) {
-                    connection.send('+++ open port ' + getComPort() + ' ' + baudrate);
-                } else {
-                    connection.send('+++ open port ' + getComPort());
-                }
-
+                connection.send('+++ open port ' + getComPort() + (baudrate ? ' ' + baudrate : ''));
                 graphStartStop('start');
-
             };
+
             // Log errors
             connection.onerror = function (error) {
                 console.log('WebSocket Error');
@@ -884,8 +834,7 @@ function graphing_console() {
                     connString += c_buf;
                     if (connString.indexOf(baudrate.toString(10)) > -1) {
                         connStrYet = true;
-                        // send remainder of string to terminal???  Haven't seen any leak through yet...
-                        $('.connection_string').html(connString.trim());
+                        displayTerminalConnectionStatus(connString.trim());
                     } else {
                         graph_new_data(c_buf);
                     }
@@ -940,6 +889,7 @@ function graphing_console() {
 
         } else {
             // create simulated graph?
+            displayTerminalConnectionStatus(Blockly.Msg.DIALOG_GRAPH_NO_DEVICES_TO_CONNECT);
         }
 
         $('#graphing-dialog').modal('show');
@@ -951,6 +901,89 @@ function graphing_console() {
     }
 }
 
+/**
+ * getGraphSettingsFromBlocks
+ * @description sets the graphing engine's settings and graph labels
+ * based on values in the graph setup and output blocks
+ * @returns {boolean} true if the appropriate graphing blocks are present and false if they are not
+ */
+function getGraphSettingsFromBlocks() {
+    // TODO: propc editor needs UI for settings for terminal and graphing
+    if (projectData.board === 'propcfile') {
+        return false;
+    }
+    var graphSettingsBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_settings');
+
+    if (graphSettingsBlocks.length > 0) {
+        console.log('found settings');
+        var graphOutputBlocks = Blockly.getMainWorkspace().getBlocksByType('graph_output');
+        graph_labels = [];
+        if (graphOutputBlocks.length > 0) {
+            console.log('found block');
+            var i = 0;
+            while (graphOutputBlocks[0].getField("GRAPH_LABEL" + i)) {
+                graph_labels.push(graphOutputBlocks[0].getFieldValue("GRAPH_LABEL" + i));
+                i++;
+            }
+        } else {
+            return false;
+        }
+
+        graph_options.refreshRate = 100 // Number(graph_settings_str[0]);
+
+        graph_options.graph_type = {
+            'AUTO': 'S', 
+            'FIXED': 'S', 
+            'AUTOXY': 'X', 
+            'FIXEDXY': 'X', 
+            'AUTOSC': 'O', 
+            'FIXEDSC': 'O'
+        }[graphSettingsBlocks[0].getFieldValue('YSETTING')];
+
+        
+        if (graphSettingsBlocks[0].getFieldValue('YMIN') || graphSettingsBlocks[0].getFieldValue('YMAX')) {
+            graph_options.axisY = {
+                type: Chartist.AutoScaleAxis,
+                low: Number(graphSettingsBlocks[0].getFieldValue('YMIN') || '0'),
+                high: Number(graphSettingsBlocks[0].getFieldValue('YMAX') || '100'),
+                onlyInteger: true
+            };
+        } else {
+            graph_options.axisY = {
+                type: Chartist.AutoScaleAxis,
+                onlyInteger: true
+            };
+        }
+        $('#graph_x-axis_label').css('display', 'block');
+        graph_options.showPoint = false;
+        graph_options.showLine = true;
+        if (graph_options.graph_type === 'X') {
+            $('#graph_x-axis_label').css('display', 'none');
+            if (graphSettingsBlocks[0].getFieldValue('XMIN') || graphSettingsBlocks[0].getFieldValue('XMAX')) {
+                graph_options.axisX = {
+                    type: Chartist.AutoScaleAxis,
+                    low: Number(graphSettingsBlocks[0].getFieldValue('XMIN') || '0'),
+                    high: Number(graphSettingsBlocks[0].getFieldValue('XMAX') || '100'),
+                        onlyInteger: true
+                };
+            } else {
+                graph_options.axisX = {
+                    type: Chartist.AutoScaleAxis,
+                    onlyInteger: true
+                };
+            }
+            graph_options.showPoint = true;
+            graph_options.showLine = false;
+        }
+
+        if (graph_options.graph_type === 'S' || graph_options.graph_type === 'X') {
+            graph_options.sampleTotal = Number(graphSettingsBlocks[0].getFieldValue('XAXIS') || '10');
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
 
 /**
  * Graphing system control
@@ -1004,15 +1037,22 @@ var graphStartStop = function (action) {
 
 /**
  * Update the list of serial ports available on the host machine
+ * NOTE: This function is used by the BP-Client only.  
+ * The BP-Launcher handles this differently inside of blocklypropclient.js
  */
 var checkForComPorts = function () {
     // TODO: We need to evaluate this when using web sockets ('ws') === true
-    if (clientService.type !== 'ws') {
-        $.get(clientService.url("ports.json"), function (data) {
-            setPortListUI(data);
-        }).fail(function () {
-            setPortListUI();
-        });
+    try {
+        if (clientService.type !== 'ws') {
+            $.get(clientService.url("ports.json"), function (data) {
+                setPortListUI(data);
+            }).fail(function () {
+                setPortListUI();
+            });
+        }
+    } catch (e) {
+        Console.log("Unable to get port list. %s", e.message);
+        setPortListUI();
     }
 };
 
@@ -1032,7 +1072,6 @@ var selectComPort = function (com_port) {
 $(document).ready(function () {
     // Display the app name in the upper-left corner of the page
     showAppName();
-
     checkForComPorts();
 });
 
@@ -1096,7 +1135,7 @@ function graph_new_data(stream) {
 
     // Check for a failed connection:
     if (stream.indexOf('ailed') > -1) {
-        $(".connection-string").html(stream);
+        displayTerminalConnectionStatus(stream);
 
     } else {
         var ts = 0;

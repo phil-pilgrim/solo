@@ -159,6 +159,10 @@ const checkLastSavedTime = function () {
 $(() => {
     RenderPageBrandingElements();
 
+    // Set the compile toolbar buttons to unavailable
+    // setPropToolbarButtons();
+    PropToolbarButtonController(false);
+
     /* -- Set up amy event handlers once the DOM is ready -- */
 
     // Update the blockly workspace to ensure that it takes
@@ -266,6 +270,11 @@ $(() => {
             setupWorkspace(localProject, function () {
                 window.localStorage.removeItem(LOCAL_PROJECT_STORE_NAME);
             });
+
+            // Set the compile toolbar buttons to unavailable
+            // setPropToolbarButtons();
+            PropToolbarButtonController(false);
+
         } catch (objError) {
             if (objError instanceof SyntaxError) {
                 console.error(objError.name);
@@ -291,12 +300,10 @@ $(() => {
     pTerm = new PropTerm(
         document.getElementById('serial_console'),
         function(characterToSend) {
-            if (active_connection !== null && 
-                active_connection !== 'simulated' && 
-                active_connection !== 'websocket') {
-                active_connection.send(btoa(characterToSend));
-        
-            } else if (active_connection === 'websocket' ) {
+            if (clientService.type === 'http' && clientService.activeConnection) {
+                clientService.activeConnection.send(btoa(characterToSend));
+
+            } else if (clientService.type === 'ws') {
                 var msg_to_send = {
                     type: 'serial-terminal',
                     outTo: 'terminal',
@@ -306,7 +313,7 @@ $(() => {
                     action: 'msg'
                 };
                 clientService.activeConnection.send(JSON.stringify(msg_to_send));
-            }    
+            }
         }
     );
 });
@@ -1073,11 +1080,13 @@ function decodeFromValidXml(str) {
  * Save project to persistent storage
  */
 function downloadCode() {
-    let projectXmlCode = getXml();
+    // Create an XML parser and parse the project XML
+    let xmlParser = new DOMParser();
+    let projectXml = xmlParser.parseFromString(getXml(), "text/xml");
 
     if (projectData
         && projectData.board !== 'propcfile'
-        && projectXmlCode.indexOf('<block') === -1) {
+        && projectXml.getElementsByTagName('block').length < 1) {
 
         // The project is empty, so warn and exit.
         utils.showMessage(
@@ -1086,10 +1095,10 @@ function downloadCode() {
     } else {
 
         // Create a filename from the project title
-        let project_filename = sanitizeFilename(projectData.name);
+        let projectFilename = sanitizeFilename(projectData.name);
 
-        projectXmlCode = projectXmlCode.substring(42, projectXmlCode.length);
-        projectXmlCode = projectXmlCode.substring(0, (projectXmlCode.length - 6));
+        // get the text of just the project inside of the outer XML tag
+        let projectXmlCode = projectXml.children[0].innerHTML;
 
         // If a custom toolbox menu is present, resave it into the file.
         if (projectData.categories && projectData.categories !== '') {
@@ -1097,31 +1106,14 @@ function downloadCode() {
         }
 
         // get the paths of the blocks themselves and the size/position of the blocks
-        var projSVG = document.getElementsByClassName('blocklyBlockCanvas');
-        var projSVGcode = projSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
-        var projSize = projSVG[0].getBoundingClientRect();
-        var projH = (parseInt(projSize.height) + parseInt(projSize.top) + 100).toString();
-        var projW = (parseInt(projSize.width) + parseInt(projSize.left) + 236).toString();
+        let projSVG = document.getElementsByClassName('blocklyBlockCanvas');
+        let projSVGcode = projSVG[0].outerHTML.replace(/&nbsp;/g, ' ');
+        let projSize = projSVG[0].getBoundingClientRect();
+        let projH = parseInt(projSize.height) + parseInt(projSize.top);
+        let projW = parseInt(projSize.width) + parseInt(projSize.left);
 
-        // a header with the necessary svg XML header and style information to make the blocks render correctly
-        // TODO: make SVG valid.
-        var SVGheader = '';
-        SVGheader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
-        SVGheader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
-        SVGheader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
-        SVGheader += 'overflow: auto; width:' + projW + 'px; height:' + projH + 'px;} .blocklyWidgetDiv {display: none; position: absolute; ';
-        SVGheader += 'z-index: 999;} .blocklyPathLight { fill: none; stroke-linecap: round; ';
-        SVGheader += 'stroke-width: 2;} .blocklyDisabled>.blocklyPath { fill-opacity: .5; ';
-        SVGheader += 'stroke-opacity: .5;} .blocklyDisabled>.blocklyPathLight, .blocklyDisabled>';
-        SVGheader += '.blocklyPathDark {display: none;} .blocklyText {cursor: default; fill: ';
-        SVGheader += '#fff; font-family: sans-serif; font-size: 11pt;} .blocklyNonEditableText>text { ';
-        SVGheader += 'pointer-events: none;} .blocklyNonEditableText>rect, .blocklyEditableText>rect ';
-        SVGheader += '{fill: #fff; fill-opacity: .6;} .blocklyNonEditableText>text, .blocklyEditableText>';
-        SVGheader += 'text {fill: #000;} .blocklyBubbleText {fill: #000;} .blocklySvg text {user';
-        SVGheader += '-select: none; -moz-user-select: none; -webkit-user-select: none; cursor: ';
-        SVGheader += 'inherit;} .blocklyHidden {display: none;} .blocklyFieldDropdown:not(.blocklyHidden) ';
-        SVGheader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
-        SVGheader += 'sans-serif; font-size: 10pt;}</style>';
+        // a blocklyprop project SVG file header to lead the text of the file and hold project metadata.
+        let SVGheader = generateSvgHeader( projW, projH )
 
         // a footer to generate a watermark with the project's information at the bottom-right corner of the SVG
         // and hold project metadata.
@@ -1136,7 +1128,7 @@ function downloadCode() {
             {type: 'image/svg+xml'});
 
         // Persist the svg date to a project file
-        saveAs(blob, project_filename + '.svg');
+        saveAs(blob, projectFilename + '.svg');
 
         // save the project into localStorage with a timestamp - if the page is simply refreshed,
         // this will allow the project to be reloaded.
@@ -1151,6 +1143,42 @@ function downloadCode() {
     }
 }
 
+
+/**
+ * Generate a blocklyprop project SVG file header to lead the text of the file
+ * and hold project metadata.
+ *
+ * @param {number} width SVG image width
+ * @param {number} height SVG image height
+ * @returns {string}
+ */
+function generateSvgHeader( width, height ) {
+
+    let projH = (height + 100).toString();
+    let projW = (width + 236).toString();
+
+    // a header with the necessary svg XML header and style information to make the blocks render correctly
+    // TODO: make SVG valid.
+    let SVGheader = '';
+    SVGheader += '<svg blocklyprop="blocklypropproject" xmlns="http://www.w3.org/2000/svg" ';
+    SVGheader += 'xmlns:html="http://www.w3.org/1999/xhtml" xmlns:xlink="http://www.w3.org/1999/xlink" ';
+    SVGheader += 'version="1.1" class="blocklySvg"><style>.blocklySvg { background-color: #fff; ';
+    SVGheader += 'overflow: auto; width:' + projW + 'px; height:' + projH + 'px;} .blocklyWidgetDiv {display: none; position: absolute; ';
+    SVGheader += 'z-index: 999;} .blocklyPathLight { fill: none; stroke-linecap: round; ';
+    SVGheader += 'stroke-width: 2;} .blocklyDisabled>.blocklyPath { fill-opacity: .5; ';
+    SVGheader += 'stroke-opacity: .5;} .blocklyDisabled>.blocklyPathLight, .blocklyDisabled>';
+    SVGheader += '.blocklyPathDark {display: none;} .blocklyText {cursor: default; fill: ';
+    SVGheader += '#fff; font-family: sans-serif; font-size: 11pt;} .blocklyNonEditableText>text { ';
+    SVGheader += 'pointer-events: none;} .blocklyNonEditableText>rect, .blocklyEditableText>rect ';
+    SVGheader += '{fill: #fff; fill-opacity: .6;} .blocklyNonEditableText>text, .blocklyEditableText>';
+    SVGheader += 'text {fill: #000;} .blocklyBubbleText {fill: #000;} .blocklySvg text {user';
+    SVGheader += '-select: none; -moz-user-select: none; -webkit-user-select: none; cursor: ';
+    SVGheader += 'inherit;} .blocklyHidden {display: none;} .blocklyFieldDropdown:not(.blocklyHidden) ';
+    SVGheader += '{display: block;} .bkginfo {cursor: default; fill: rgba(0, 0, 0, 0.3); font-family: ';
+    SVGheader += 'sans-serif; font-size: 10pt;}</style>';
+
+    return SVGheader;
+}
 
 /**
  * Generate a watermark with the project's information at the bottom-right corner of the SVG
@@ -1182,8 +1210,8 @@ function generateSvgFooter( project ) {
     svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,-8)">' +
         'Description: ' + encodeToValidXml(project.description) + '</text>';
 
-    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)"' +
-        ' data-createdon="' + project.created + '" data-lastmodified="' + dt + '"></text>';
+    svgFooter += '<text class="bkginfo" x="100%" y="100%" transform="translate(-225,13)" data-createdon="' +
+        project.created + '" data-lastmodified="' + dt + '"></text>';
 
     return svgFooter;
 }
@@ -1250,8 +1278,8 @@ function uploadHandler(files) {
             let findBPCstart = '<block';
             let findBPCend = '<ckm>'
 
-            if (xmlString.indexOf("<variables>") > -1) {
-                findBPCstart = '<variables>';
+            if (xmlString.indexOf("<variables") > -1) {
+                findBPCstart = '<variables';
             }
 
             uploadedXML = xmlString.substring(xmlString.indexOf(findBPCstart), xmlString.indexOf(findBPCend));
@@ -1299,30 +1327,46 @@ function uploadHandler(files) {
             };
 
             // Compute a parallel dataset to replace 'pd'
-            let project = new Project(
-                decodeFromValidXml(projectTitle),
-                decodeFromValidXml(projectDesc),
-                Project.convertBoardType(uploadBoardType),
-                ProjectTypes.PROPC,
-                uploadedXML,
-                projectCreated,
-                projectModified,
-                getTimestamp());
+            try {
+                // Convert the string board type name to a ProjectBoardType object
 
+                let tmpBoardType = Project.convertBoardType(uploadBoardType);
+                if (tmpBoardType === undefined) {
+                    console.log("Unknown board type: %s", uploadBoardType);
+                }
+
+                let project = new Project(
+                    decodeFromValidXml(projectTitle),
+                    decodeFromValidXml(projectDesc),
+                    tmpBoardType,
+                    ProjectTypes.PROPC,
+                    uploadedXML,
+                    projectCreated,
+                    projectModified,
+                    getTimestamp());
+
+                // Convert the Project object details to projectData object
                 let projectOutput = project.getDetails();
+                if (projectOutput === undefined) {
+                    console.log("Unable to convert Project to projectData object.");
+                }
 
                 if (! Project.testProjectEquality(pd, projectOutput)) {
                     console.log("Project output differs.");
                 }
+            }
+            catch (e) {
+                console.log("Error while creating project object. %s", e.message);
+            }
 
-                // Save the output in a temp storage space
-                // TODO: Test this result with the value 'pd'
-                // window.localStorage.setItem(
-                //     "tempProject",
-                //     JSON.stringify(projectOutput));
+            // Save the output in a temp storage space
+            // TODO: Test this result with the value 'pd'
+            // window.localStorage.setItem(
+            //     "tempProject",
+            //     JSON.stringify(projectOutput));
 
-                // Save the project to the browser store
-                window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
+            // Save the project to the browser store
+            window.localStorage.setItem(TEMP_PROJECT_STORE_NAME, JSON.stringify(pd));
         }
 
         if (xmlValid === true) {
@@ -1521,12 +1565,12 @@ function uploadMergeCode(append) {
         if (newCode.indexOf('<variables>') === -1) {
             newCode = newCode.substring(uploadedXML.indexOf('<block'), newCode.length);
         } else {
-            newCode = newCode.substring(uploadedXML.indexOf('<variables>'), newCode.length);
+            newCode = newCode.substring(uploadedXML.indexOf('<variables'), newCode.length);
         }
         newCode = newCode.substring(0, (newCode.length - 6));
 
         // check for newer blockly XML code (contains a list of variables)
-        if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') > -1) {
+        if (newCode.indexOf('<variables') > -1 && projCode.indexOf('<variables') > -1) {
             var findVarRegExp = /type="(\w*)" id="(.{20})">(\w+)</g;
             var newBPCvars = [];
             var oldBPCvars = [];
@@ -1534,7 +1578,7 @@ function uploadMergeCode(append) {
             var varCodeTemp = newCode.split('</variables>');
             newCode = varCodeTemp[1];
             // use a regex to match the id, name, and type of the varaibles in both the old and new code.
-            var tmpv = varCodeTemp[0].split('<variables>')[1].replace(findVarRegExp, function (p, m1, m2, m3) {  // type, id, name
+            var tmpv = varCodeTemp[0].split('<variables')[1].replace(findVarRegExp, function (p, m1, m2, m3) {  // type, id, name
                 newBPCvars.push([m3, m2, m1]);  // name, id, type
                 return p;
             });
@@ -1575,7 +1619,7 @@ function uploadMergeCode(append) {
             tmpv += '</variables>';
             // add everything back together
             projectData.code = EMPTY_PROJECT_CODE_HEADER + tmpv + projCode + newCode + '</xml>';
-        } else if (newCode.indexOf('<variables>') > -1 && projCode.indexOf('<variables>') === -1) {
+        } else if (newCode.indexOf('<variables') > -1 && projCode.indexOf('<variables') === -1) {
             projectData.code = EMPTY_PROJECT_CODE_HEADER + newCode + projCode + '</xml>';
         } else {
             projectData.code = EMPTY_PROJECT_CODE_HEADER + projCode + newCode + '</xml>';
@@ -1775,7 +1819,7 @@ function RenderPageBrandingElements() {
     let appName = ApplicationName;
     let html = 'BlocklyProp<br><strong>' + ApplicationName + '</strong>';
 
-    if (window.location.hostname === product_banner_host_trigger) {
+    if (window.location.hostname === productBannerHostTrigger) {
         appName = TestApplicationName;
         html = 'BlocklyProp<br><strong>' + TestApplicationName + '</strong>';
         document.getElementById('nav-logo').style.backgroundImage = 'url(\'src/images/dev-toolkit.png\')';
