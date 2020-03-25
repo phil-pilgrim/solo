@@ -1721,7 +1721,7 @@ xmlToolbox += '    <category name="PTHS Robot Arm">';
 xmlToolbox += '      <block type="custom_code_multiple" id="gND^n:Y+vVu4NcaGZmGn" >';
 xmlToolbox += '          <mutation';
 xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#992673&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;MAIN&quot;:&quot;cog_run(run_servos, 128);\n'
-           +              'pause(1000);&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;#include &lt;servo.h&gt;\n'
+           +              'pause(1000);&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;#include "servo.h";\n'
            +              '#define MY_MAXSPD 100\n'
            +              '#define MY_MINSPD  20\n'
            +              '#define MY_MAXPOS 990\n'
@@ -1743,8 +1743,8 @@ xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="
            +              'int _servospd[3]= {0, 0, 0};\n'
            +              'int _currpos[3];\n'
            +              'int _currspd[3];\n'
-           +              '//int _armangle[3];\n'
-           +              '//int _zeroangle[3] = {215, 844, 500};\n'
+           +              '/* int _armangle[3];\n'*/
+           +              '/* int _zeroangle[3] = {215, 844, 500};\n' */
            +              'int _nextspd = MY_MINSPD;\n'
            +              'int _lastgrip = 200;\n'
            +              'int _maxerror = 0;\n'
@@ -1917,7 +1917,7 @@ xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="
            +              '      if (t1 == 0) continue;\n'
            +              '      int t2 = (pulse_in(_feedback[i], 0));\n'
            +              '      int pos = constrainInt(( ((1000 * t1) / (t1 + t2)) - 29) * 1000 / 941, 0, 999);\n'
-           +              '//      int gravity = (gforce(i, pos) * _defaultbias[i]) &gt;&gt; 8;\n'
+           +              '/*      int gravity = (gforce(i, pos) * _defaultbias[i]) &gt;&gt; 8;\n' */
            +              '      if (_targpos[i] &gt; 0) {\n'
            +              '        int err = abs(_currt[i] - _totalt[i]);\n'
            +              '        if (err &gt; maxerr) maxerr = err;\n'
