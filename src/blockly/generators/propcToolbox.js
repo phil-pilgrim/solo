@@ -1721,7 +1721,7 @@ xmlToolbox += '    <category name="PTHS Robot Arm">';
 xmlToolbox += '      <block type="custom_code_multiple" id="gND^n:Y+vVu4NcaGZmGn" >';
 xmlToolbox += '          <mutation';
 xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#992673&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;MAIN&quot;:&quot;cog_run(run_servos, 128);\n'
-           +              'pause(1000);&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;#include &quot;servo.h&quot;;\n'
+           +              'pause(1000);&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;#include &quot;servo.h&quot;\n'
            +              '#define MY_MAXSPD 100\n'
            +              '#define MY_MINSPD  20\n'
            +              '#define MY_MAXPOS 990\n'
@@ -1940,6 +1940,12 @@ xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="
            +              '  }\n'
            +              '}\n'
            +              '&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;LABEL_SET&quot;:&quot;Start Robot Arm&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="NbpsIdZwGx%dt,/VIk)#" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(\&quot;\&quot; @1);&quot;}">';
 xmlToolbox += '          </mutation>';
 xmlToolbox += '          <field name="EDIT">FALSE</field>';
 xmlToolbox += '      </block>';
