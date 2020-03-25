@@ -1720,7 +1720,7 @@ xmlToolbox += '    </category>';
 xmlToolbox += '    <category name="PTHS Robot Arm">';
 xmlToolbox += '      <block type="custom_code_multiple" id="NbpsIdZwGx%dt,/VIk)#" >';
 xmlToolbox += '          <mutation';
-xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(\&quot;\&quot; @1);&quot;}">';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(&quot;&quot; @1);&quot;}">';
 xmlToolbox += '          </mutation>';
 xmlToolbox += '          <field name="EDIT">FALSE</field>';
 xmlToolbox += '      </block>';
