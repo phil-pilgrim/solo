@@ -1718,6 +1718,66 @@ xmlToolbox += '        <block type="register_get"></block>';
 xmlToolbox += '        <block type="system_counter" include="other,"></block>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category name="PTHS Robot Arm">';
+xmlToolbox += '      <block type="custom_code_multiple" id="NbpsIdZwGx%dt,/VIk)#" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(\&quot;\&quot; @1);&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="]B/In@e`0@D2!OXm/#bw" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set grip&quot;,&quot;MAIN&quot;:&quot;grip_angle(@1 + 0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;TYPE&quot;:&quot;INL&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="c[aVcI2qRuEh+@aDmMna" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#992673&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set arm&quot;,&quot;LABEL_ARG1&quot;:&quot;speed&quot;,&quot;MAIN&quot;:&quot;_nextspd = @1+0;&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="6c:Jlqza)d,g}`rhLf?^" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set lift&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(0, @1+0);&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="YEvXy;r6rN{k44g9G?~Y" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#992673&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set curl&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;#if @1+0\n'
+           +              '  run_servo(1, 999 - (@1+0));\n'
+           +              '#else\n'
+           +              '  run_servo(1, 0);\n'
+           +              '#endif\n'
+           +              '&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="cpr}8CqXTFPUt}W2KiLb" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set rotate&quot;,&quot;MAIN&quot;:&quot;run_servo(2, @1+0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="0))f6DjP|:DFk.,l?/9m" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Wait for arms&quot;,&quot;MAIN&quot;:&quot;arm_wait();\n'
+           +              '&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="4@qsE09AK_9!W8rW7o%_" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Lift position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;_currpos[0]&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
+xmlToolbox += '      <block type="custom_code_multiple" id="D$][cLdiucpT{Tu9RjmM" >';
+xmlToolbox += '          <mutation';
+xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Curl Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;999 - _currpos[1]&quot;}">';
+xmlToolbox += '          </mutation>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '      </block>';
 xmlToolbox += '      <block type="custom_code_multiple" id="IGi5V*UgzHbr1|+$`HU`" >';
 xmlToolbox += '          <mutation';
 xmlToolbox += '              xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:320,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Rotate Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;_currpos[2]&quot;}">';
