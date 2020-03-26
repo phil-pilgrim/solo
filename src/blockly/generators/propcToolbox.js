@@ -1717,7 +1717,7 @@ xmlToolbox += '        <block type="register_set"></block>';
 xmlToolbox += '        <block type="register_get"></block>';
 xmlToolbox += '        <block type="system_counter" include="other,"></block>';
 xmlToolbox += '    </category>';
-xmlToolbox += '    <category name="PTHS Robot Arm">';
+xmlToolbox += '    <category name="PTHS Robot Arm" include="activity-board," colour="F00">';
 xmlToolbox += '          <block';
 xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple" id="gND^n:Y+vVu4NcaGZmGn" x="-916" y="-1993">';
 xmlToolbox += '              <mutation';
