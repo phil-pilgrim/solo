@@ -1722,6 +1722,7 @@ xmlToolbox += '          <block type="custom_code_multiple" id="gND^n:Y+vVu4NcaG
 xmlToolbox += '              <mutation';
 xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#992673&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;MAIN&quot;:&quot;cog_run(run_servos, 128);\n'
            +              'pause(1000);&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;#include &lt;servo.h&gt;\n'
+           +              '\n'
            +              '#define MY_MAXSPD 100\n'
            +              '#define MY_MINSPD  20\n'
            +              '#define MY_MAXPOS 990\n'
