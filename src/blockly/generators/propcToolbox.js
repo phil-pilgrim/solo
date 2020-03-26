@@ -2024,7 +2024,7 @@ xmlToolbox += '              </mutation>';
 xmlToolbox += '              <field name="EDIT">FALSE</field>';
 xmlToolbox += '          </block>';
 xmlToolbox += '     </category>';
-xmlToolbox += '</xml>';
+xmlToolbox += '   </xml>';
 
 var colorChanges = {
     '140': '#AAAAAA',
