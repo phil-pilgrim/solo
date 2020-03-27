@@ -2183,4 +2183,13 @@ function filterToolbox(project) {
     let outStr = out.serializeToString(xmlDoc);
 
     // turn the custom category XML into a string so it can be added back into a save (SVG) file.
-    if (projectData && customCategoryList && customCategoryList.length
+    if (projectData && customCategoryList && customCategoryList.length > 0) {
+        projectData.categories = '';	
+        for (let j = 0; j < customCategoryList.length; j++) {	
+            if (customCategoryList[j] && customCategoryList[j].outerHTML) {	
+                projectData.categories += customCategoryList[j].outerHTML;	
+            }	
+        }	
+    }	
+    return outStr;	
+}
