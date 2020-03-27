@@ -2024,8 +2024,7 @@ xmlToolbox += '              </mutation>';
 xmlToolbox += '              <field name="EDIT">FALSE</field>';
 xmlToolbox += '              <value name="ARG1">';
 xmlToolbox += '                  <block colour="F00"  type="string_type_block_multiple" id="#q5k%Cj.6r)~(8M9lWX5">';
-xmlToolbox += '                      <field name="TEXT">abc';
-xmlToolbox += '      def</field>';
+xmlToolbox += '                      <field name="TEXT"/>';
 xmlToolbox += '                  </block>';
 xmlToolbox += '              </value>';
 xmlToolbox += '          </block>';
@@ -2184,13 +2183,4 @@ function filterToolbox(project) {
     let outStr = out.serializeToString(xmlDoc);
 
     // turn the custom category XML into a string so it can be added back into a save (SVG) file.
-    if (projectData && customCategoryList && customCategoryList.length > 0) {
-        projectData.categories = '';
-        for (let j = 0; j < customCategoryList.length; j++) {
-            if (customCategoryList[j] && customCategoryList[j].outerHTML) {
-                projectData.categories += customCategoryList[j].outerHTML;
-            }
-        }
-    }
-    return outStr;
-}
+    if (projectData && customCategoryList && customCategoryList.length
