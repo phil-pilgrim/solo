@@ -183,6 +183,7 @@ xmlToolbox += '    <sep></sep>';
 xmlToolbox += '    <category key="category_values" exclude="s3," colour="205">';
 xmlToolbox += '        <block type="math_number"></block>';
 xmlToolbox += '        <block type="string_type_block"></block>';
+xmlToolbox += '        <block type="string_type_block_multiple"></block>';
 xmlToolbox += '        <block type="char_type_block"></block>';
 xmlToolbox += '        <block type="music_note">';
 xmlToolbox += '            <field name="OCTAVE">0.125</field>';
