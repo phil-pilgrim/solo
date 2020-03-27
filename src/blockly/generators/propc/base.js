@@ -555,6 +555,28 @@ Blockly.propc.string_type_block = function () {
     return [code, Blockly.propc.ORDER_NONE];
 };
 
+Blockly.Blocks.string_type_block_multiple = {
+    helpUrl: Blockly.MSG_VALUES_HELPURL,
+    init: function () {
+        this.setTooltip(Blockly.MSG_STRING_TYPE_BLOCK_TOOLTIP);
+        this.setColour(colorPalette.getColor('programming'));
+        this.appendDummyInput()
+                .appendField("\u201C")
+                .appendField(new Blockly.FieldAceEditor("string", ''), "TEXT")
+                .appendField("\u201D");
+        this.setPreviousStatement(false, null);
+        this.setNextStatement(false, null);
+        this.setOutput(true, 'String');
+    }
+};
+
+Blockly.propc.string_type_block_multiple = function () {
+    var text = this.getFieldValue("TEXT").replace(/"/g, '\\"');
+
+    var code = '"' + text + '"';
+    return [code, Blockly.propc.ORDER_NONE];
+};
+
 Blockly.Blocks.char_type_block = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
