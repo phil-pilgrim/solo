@@ -562,7 +562,7 @@ Blockly.Blocks.string_type_block_multiple = {
         this.setColour(colorPalette.getColor('programming'));
         this.appendDummyInput()
                 .appendField("\u201C")
-                .appendField(new Blockly.FieldAceEditor("string", ''), "TEXT")
+                .appendField(new Blockly.FieldAceEditor("List", ''), "TEXT")
                 .appendField("\u201D");
         this.setPreviousStatement(false, null);
         this.setNextStatement(false, null);
@@ -572,7 +572,7 @@ Blockly.Blocks.string_type_block_multiple = {
 
 Blockly.propc.string_type_block_multiple = function () {
     var text = this.getFieldValue("TEXT").replace(/"/g, '\\"');
-    text = text.replace(/\n/g, '¶');
+    text = text.replace(/\n/g, '\\n');
     var code = '"' + text + '"';
     return [code, Blockly.propc.ORDER_NONE];
 };
