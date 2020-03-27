@@ -562,7 +562,7 @@ Blockly.Blocks.string_type_block_multiple = {
         this.setColour(colorPalette.getColor('programming'));
         this.appendDummyInput()
                 .appendField("\u201C")
-                .appendField(new Blockly.FieldAceEditor(''), "TEXT")
+                .appendField(new Blockly.FieldAceEditor("string", ''), "TEXT")
                 .appendField("\u201D");
         this.setPreviousStatement(false, null);
         this.setNextStatement(false, null);
