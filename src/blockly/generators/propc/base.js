@@ -555,6 +555,28 @@ Blockly.propc.string_type_block = function () {
     return [code, Blockly.propc.ORDER_NONE];
 };
 
+Blockly.Blocks.string_type_block_multiple = {
+    helpUrl: Blockly.MSG_VALUES_HELPURL,
+    init: function () {
+        this.setTooltip(Blockly.MSG_STRING_TYPE_BLOCK_TOOLTIP);
+        this.setColour(colorPalette.getColor('programming'));
+        this.appendDummyInput()
+                .appendField("\u201C")
+                .appendField(new Blockly.FieldAceEditor(''), "TEXT")
+                .appendField("\u201D");
+        this.setPreviousStatement(false, null);
+        this.setNextStatement(false, null);
+        this.setOutput(true, 'String');
+    }
+};
+
+Blockly.propc.string_type_block)multiple = function () {
+    var text = this.getFieldValue("TEXT").replace(/"/g, '\\"');
+
+    var code = '"' + text + '"';
+    return [code, Blockly.propc.ORDER_NONE];
+};
+
 Blockly.Blocks.char_type_block = {
     helpUrl: Blockly.MSG_VALUES_HELPURL,
     init: function () {
@@ -2314,7 +2336,7 @@ Blockly.Blocks.custom_code_multiple = {
     helpUrl: Blockly.MSG_SYSTEM_HELPURL,
     init: function () {
         this.setTooltip(Blockly.MSG_CUSTOM_CODE_MULTIPLE_TOOLTIP);
-        this.setColour(colorPalette.getColor('system'));
+        this.setColour('F00'); //(colorPalette.getColor('system'));
         this.appendDummyInput('BLOCK_LABEL')
                 .appendField(new Blockly.FieldCheckbox('FALSE', function (showFields) {
                     this.sourceBlock_.updateShape_(showFields, true);
@@ -2435,9 +2457,6 @@ Blockly.Blocks.custom_code_multiple = {
     },
     mutationToDom: function () {
         var container = document.createElement('mutation');
-        if (this.type === 'custom_code_multiple_locked') {
-            delete this.fieldValueTemp_['EDIT'];
-        }
         container.setAttribute('field_values', JSON.stringify(this.fieldValueTemp_));
         return container;
     },
@@ -2460,15 +2479,7 @@ Blockly.Blocks.custom_code_multiple = {
             this.fieldValueTemp_['TYPE'] = container.getAttribute('type');
             this.fieldValueTemp_['LABEL_SET'] = this.getFieldValue('LABEL_SET');
         }
-        if (this.type === 'custom_code_multiple') {
-            this.updateShape_(this.fieldValueTemp_['EDIT'], false);
-        } else {
-            this.setupInputs();
-            this.destroyFields();
-            if (this.getField('EDIT')) {
-                this.getInput('BLOCK_LABEL').removeField('EDIT');
-            }
-        }
+        this.updateShape_(this.fieldValueTemp_['EDIT'], false);
         this.setFieldValue(this.fieldValueTemp_['LABEL_SET'], 'LABEL');
         this.setOutputType(this.fieldValueTemp_['TYPE'] || 'INL');
     },
@@ -2496,7 +2507,7 @@ Blockly.Blocks.custom_code_multiple = {
         }
         for (i = 1; i <= Number(argsCount); i++) {
             if (!this.getInput('ARG' + i.toString(10))) {
-                if (blockEditState && this.type !== 'custom_code_multiple_locked') {
+                if (blockEditState) {
                     this.appendValueInput('ARG' + i.toString(10))
                             .setAlign(Blockly.ALIGN_RIGHT)
                             .appendField('input "@' + i.toString(10) + '" label', 'EDIT_ARG' + i.toString(10))
@@ -2560,8 +2571,6 @@ Blockly.propc.custom_code_multiple = function () {
     }
 };
 
-Blockly.Blocks.custom_code_multiple_locked = Blockly.Blocks.custom_code_multiple;
-Blockly.propc.custom_code_multiple_locked = Blockly.propc.custom_code_multiple;
 
 Blockly.Blocks.propc_file = {
     init: function () {
