@@ -572,7 +572,7 @@ Blockly.Blocks.string_type_block_multiple = {
 
 Blockly.propc.string_type_block_multiple = function () {
     var text = this.getFieldValue("TEXT").replace(/"/g, '\\"');
-    var text = this.getFieldValue("TEXT").replace(/\n/g, '|');
+    text = text.replace(/\n/g, '\\n');
     var code = '"' + text + '"';
     return [code, Blockly.propc.ORDER_NONE];
 };
