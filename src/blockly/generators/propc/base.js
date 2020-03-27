@@ -2379,7 +2379,7 @@ Blockly.Blocks.custom_code_multiple = {
                         "#26994D", "#268F99", "#266999",
                         "#264399", "#392699", "#692699",
                         "#8F2699", "#992673", "#99264C",
-                        "#FF0000"
+                        "#CB0000"
                     ]).setColumns(3), 'COLOR');
         var currentCustomBlock = this;
         ([
