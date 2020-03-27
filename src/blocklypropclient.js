@@ -97,6 +97,9 @@ const NS_DOWNLOAD_SUCCESSFUL         = 5;   // 005;
 // Error Notice IDs
 const NE_DOWNLOAD_FAILED             = 102;
 
+// Number of times we are willing to forgo getting a client list before
+// the connection is considered abandoned.
+const PORT_LIST_TIMEOUT_COUNT_MAX = 3;
 
 $(document).ready(function () {
     findClient();
@@ -106,6 +109,7 @@ $(document).ready(function () {
 var findClient = function () {
     // Try to connect to the BP-Launcher (websocket) first
     if (!clientService.available && clientService.type !== 'http') {
+        console.log('Establishing launcher connection.');
         establishBPLauncherConnection();
     }
 
@@ -114,17 +118,30 @@ var findClient = function () {
         clientService.portListReceiveCountUp++;
 
         // Is the BP-Launcher taking to long to respond?  If so, close the connection
-        if (clientService.portListReceiveCountUp > 2) {
+        if (clientService.portListReceiveCountUp > PORT_LIST_TIMEOUT_COUNT_MAX) {
+            console.log('Port list timeout! Resetting connection.');
             clientService.activeConnection.close();
+
             // TODO: check to see if this is really necesssary - it get's called by the WS onclose handler
             lostWSConnection();
         }
     }
 
     // BP-Launcher not found? Try connecting to the BP-Client
-    if (clientService.type !== 'ws') {
-        establishBPClientConnection();
-    }
+    setTimeout(function(){
+            if (clientService.type !== 'ws') {
+                console.log('Trying to connect to the BP Client.');
+                establishBPClientConnection();
+            }
+        },
+        1000
+    );
+
+    // if (clientService.type !== 'ws') {
+    //     console.log('Trying to connect to the BP Client.');
+    //     establishBPClientConnection();
+    // }
+
 
     // If connected to the BP-Client, poll for an updated port list
     if (clientService.type === 'http') {
@@ -132,11 +149,6 @@ var findClient = function () {
     }
 };
 
-
-/**
- * Set button state for the Compiler toolbar
- * @deprecated Replaced with PropToolbarButtonController()
- */
 var setPropToolbarButtons = function () {
     if (clientService.available) {
         if (projectData && projectData.board === 's3') {
@@ -162,61 +174,6 @@ var setPropToolbarButtons = function () {
         $(".client-action").addClass("disabled");
     }
 };
-
-
-/**
- *  Update the state of the Compiler toolbar buttons
- *
- * @param {boolean} connected
- *
- * @constructor
- */
-const PropToolbarButtonController = (connected) => {
-    if (projectData && projectData.board === 's3') {
-        /* ----------------------------------------------------------------
-         * Hide the buttons that are not required for the S3 robot
-         *
-         * Find all of the HTML elements that have a class id of 'no-s3'
-         * and append a hidden attribute to the selected HTML elements.
-         * This currently applies to the elements prop-btn-ram and
-         *  prop-btn-graph.
-         * --------------------------------------------------------------*/
-        $('.no-s3').addClass('hidden');
-
-        // Toggle the client available message to display the short form
-        $('#client-available').addClass('hidden');
-        $('#client-available-short').removeClass('hidden');
-    } else {
-        // Reveal these buttons
-        $('.no-s3').removeClass('hidden');
-
-        // Toggle the client available message to display the long form
-        $('#client-available').removeClass('hidden');
-        $('#client-available-short').addClass('hidden');
-    }
-
-    // Update elements when we are connected
-    if (connected) {
-        // Hide the 'client unavailable' message
-        $("#client-unavailable").addClass("hidden");
-
-        /* Enable these buttons:
-         *   Compile to RAM
-         *   Compile to EEPROM
-         *   Open Terminal
-         *   Open graphing window
-         */
-        $(".client-action").removeClass("disabled");
-    } else {
-        // Disable the toolbar buttons
-        $("#client-unavailable").removeClass("hidden");
-        $("#client-available").addClass("hidden");
-        $("#client-available-short").addClass("hidden");
-        $(".client-action").addClass("disabled");
-    }
-};
-
-
 
 /**
  * @function checkClientVersionModal Displays a modal with information
@@ -266,22 +223,16 @@ var establishBPClientConnection = function () {
             }
 
             checkClientVersionModal(client_version_str);
-
             clientService.type = 'http';
-            clientService.available = true;         // Connected to the Launcher/Client
-
-            // Set the compiler toolbar elements
-            // setPropToolbarButtons();
-            PropToolbarButtonController(clientService.available);
+            clientService.available = true;
+            setPropToolbarButtons();
         }
     }).fail(function () {
+        console.log('Failed to establish connection. Resetting connection details.');
         clientService.type = null;
-        clientService.available = false;            // Not connected to the Launcher/Client
+        clientService.available = false;
         clientService.portsAvailable = false;
-
-        // Set the compiler toolbar elements
-        // setPropToolbarButtons();
-        PropToolbarButtonController(clientService.available);
+        setPropToolbarButtons();
     });
 };
 
@@ -398,11 +349,8 @@ function establishBPLauncherConnection() {
 
                 clientService.rxBase64 = wsMessage.rxBase64 || false;
                 clientService.type = 'ws';
-                clientService.available = true;     // Connected to the Launcher/Client
-
-                // Set the compiler toolbar elements
-                // setPropToolbarButtons();
-                PropToolbarButtonController(clientService.available);
+                clientService.available = true;
+                setPropToolbarButtons();
 
                 var portRequestMsg = JSON.stringify({type: 'port-list-request', msg: 'port-list-request'});
                 connection.send(portRequestMsg);
@@ -520,19 +468,19 @@ function establishBPLauncherConnection() {
  * Lost websocket connection, clean up and restart findClient processing
  */
 function lostWSConnection() {
+    console.log('Lost connection');
     if (clientService.type !== 'http') {
+        console.log('Resetting from lost connection');
         clientService.activeConnection = null;
         clientService.type = null;
-        clientService.available = false;        // Not connected to the Launcher/Client
+        clientService.available = false;
     }
 
-    // Set the compiler toolbar elements
-    // setPropToolbarButtons();
-    PropToolbarButtonController(clientService.available);
+    setPropToolbarButtons();
 
     // Clear ports list
     setPortListUI();
-};
+}
 
 
 // set communication port list
