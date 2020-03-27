@@ -122,9 +122,19 @@ var findClient = function () {
     }
 
     // BP-Launcher not found? Try connecting to the BP-Client
-    if (clientService.type !== 'ws') {
-        establishBPClientConnection();
-    }
+    setTimeout(function(){
+            if (clientService.type !== 'ws') {
+                console.log('Trying to connect to the BP Client.');
+                establishBPClientConnection();
+            }
+        },
+        1000
+    );
+
+    // if (clientService.type !== 'ws') {
+    //     console.log('Trying to connect to the BP Client.');
+    //     establishBPClientConnection();
+    // }
 
     // If connected to the BP-Client, poll for an updated port list
     if (clientService.type === 'http') {
