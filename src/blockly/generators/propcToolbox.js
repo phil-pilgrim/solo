@@ -1920,7 +1920,6 @@ xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_va
            +              '        case &#39;/&#39;:\n'
            +              '          while (1) {\n'
            +              '            c = *cmds++;\n'
-           +              '            pulse_out(0, 50);\n'
            +              '            if (c == 10) break;\n'
            +              '            if (c == 0) return;\n'
            +              '          }\n'
@@ -2012,7 +2011,7 @@ xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_va
            +              '&quot;}" />';
 xmlToolbox += '          <field name="EDIT">FALSE</field>';
 xmlToolbox += '        </block>';
-xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="6c:Jlqza)d,g}`rhLf?^" x="-894" y="-1840">';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="6c:Jlqza)d,g}`rhLf?^" x="-867" y="-1825">';
 xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set lift&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_LIFT, @1+0);\n'
            +              '&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;}" />';
 xmlToolbox += '          <field name="EDIT">FALSE</field>';
