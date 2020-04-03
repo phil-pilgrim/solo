@@ -183,7 +183,6 @@ xmlToolbox += '    <sep></sep>';
 xmlToolbox += '    <category key="category_values" exclude="s3," colour="205">';
 xmlToolbox += '        <block type="math_number"></block>';
 xmlToolbox += '        <block type="string_type_block"></block>';
-xmlToolbox += '        <block type="string_type_block_multiple"></block>';
 xmlToolbox += '        <block type="char_type_block"></block>';
 xmlToolbox += '        <block type="music_note">';
 xmlToolbox += '            <field name="OCTAVE">0.125</field>';
@@ -1719,11 +1718,8 @@ xmlToolbox += '        <block type="register_get"></block>';
 xmlToolbox += '        <block type="system_counter" include="other,"></block>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category name="PTHS Robot Arm" include="activity-board," colour="#B00000">';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="gND^n:Y+vVu4NcaGZmGn" x="-884" y="-1973">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;MAIN&quot;:&quot;cog_run(run_servos, 128);\n'
-           +              'pause(1000);&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;const int MY_MAXSPD = 100;\n'
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="gND^n:Y+vVu4NcaGZmGn" x="-920" y="-1948">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;MAIN&quot;:&quot;start_servos();&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;const int MY_MAXSPD = 100;\n'
            +              'const int MY_MINSPD = 20;\n'
            +              'const int MY_MAXPOS = 990;\n'
            +              'const int MY_MINPOS = 10;\n'
@@ -1736,8 +1732,8 @@ xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_valu
            +              '\n'
            +              'int _servo[3] = {17, 15, 14};\n'
            +              'int _feedback[3] = {16, 11, 10};\n'
-           +              'int _initpos[3];\n'
-           +              'int _interpos[3];\n'
+           +              'int _initpos[3] = {0, 0, 0};\n'
+           +              'int _interpos[3] = {0, 0, 0};\n'
            +              'int _targpos[3] = {0, 0, 0};\n'
            +              'int _speed[3] = {0, 0, 0};\n'
            +              'int _currt[3] = {0, 0, 0};\n'
@@ -1750,8 +1746,10 @@ xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_valu
            +              'int _nextspd = 20;\n'
            +              'int _lastgrip = 200;\n'
            +              'int _maxerror = 0;\n'
+           +              'int _error[3] = {0, 0, 0};\n'
            +              'int _t;\n'
            +              'int _grip_pulse = 0;\n'
+           +              'int _servos_started = 0;\n'
            +              '\n'
            +              'short _sigmoid[257] = {\n'
            +              '      0,    8,   16,   25,   34,   44,   54,   64,   75,   86,   97,  109,  122,  135,  149,  163,\n'
@@ -1803,43 +1801,52 @@ xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_valu
            +              '};\n'
            +              '\n'
            +              'void run_servo(int i, int pos) {\n'
-           +              '  if (i &gt;= 0 &amp;&amp; i &lt;= 2) {\n'
-           +              '    _targpos[i] = 0;\n'
-           +              '    if (pos &gt; 0) {\n'
-           +              '      if (i == MY_CURL) pos = 999 - pos;\n'
-           +              '      _servospd[i] = 0;\n'
-           +              '      _currt[i] = 0;\n'
-           +              '      _speed[i] = constrainInt(i == 0 ? _nextspd : 2 * _nextspd / 3, MY_MINSPD, MY_MAXSPD) * 10;\n'
-           +              '      _totalt[i] = constrainInt((abs(pos - _currpos[i]) &lt;&lt; 15) / _speed[i], 1, 256000);\n'
-           +              '      _initpos[i] = _interpos[i] = _currpos[i];\n'
-           +              '      _targpos[i] = constrainInt(pos, MY_MINPOS, MY_MAXPOS);\n'
+           +              '  if (_servos_started) {\n'
+           +              '    if (i &gt;= 0 &amp;&amp; i &lt;= 2) {\n'
+           +              '      while (_error[i] &amp;&amp; _targpos[i]) {pause(25);}\n'
+           +              '      _targpos[i] = 0;\n'
+           +              '      if (pos &gt; 0) {\n'
+           +              '        pos = constrainInt(pos, MY_MINPOS, MY_MAXPOS);\n'
+           +              '        if (i == MY_CURL) pos = 999 - pos;\n'
+           +              '        _servospd[i] = 0;\n'
+           +              '        _currt[i] = 0;\n'
+           +              '        _speed[i] = constrainInt(i == 0 ? _nextspd : 2 * _nextspd / 3, MY_MINSPD, MY_MAXSPD) * 10;\n'
+           +              '        _totalt[i] = constrainInt((abs(pos - _currpos[i]) &lt;&lt; 15) / _speed[i], 1, 256000);\n'
+           +              '        _initpos[i] = _interpos[i] = _currpos[i];\n'
+           +              '        _targpos[i] = pos;\n'
+           +              '      }\n'
+           +              '      pause(25);\n'
            +              '    }\n'
            +              '  }\n'
            +              '}\n'
            +              '\n'
            +              'void grip_angle(int angle) {\n'
-           +              '  if (angle == 0) {\n'
-           +              '    _grip_pulse = 0;\n'
-           +              '    return;\n'
+           +              '  if (_servos_started) {\n'
+           +              '    if (angle == 0) {\n'
+           +              '      _grip_pulse = 0;\n'
+           +              '      return;\n'
+           +              '    }\n'
+           +              '    int ang = constrainInt(angle, 0, 100) * 9 / 2 + 550;\n'
+           +              '    if (ang &gt; _lastgrip) {\n'
+           +              '      for (int i = _lastgrip; i &lt;= ang; i += 10) {\n'
+           +              '        _grip_pulse = ang;\n'
+           +              '        pause(25);\n'
+           +              '      }\n'
+           +              '    } else {\n'
+           +              '      for (int i = _lastgrip; i &gt;= ang; i -= 10) {\n'
+           +              '        _grip_pulse = ang;\n'
+           +              '        pause(25);\n'
+           +              '      }\n'
+           +              '    }    \n'
+           +              '    _lastgrip = ang;\n'
            +              '  }\n'
-           +              '  int ang = constrainInt(angle, 0, 100) * 9 / 2 + 550;\n'
-           +              '  if (ang &gt; _lastgrip) {\n'
-           +              '    for (int i = _lastgrip; i &lt;= ang; i += 10) {\n'
-           +              '      _grip_pulse = ang;\n'
-           +              '      pause(25);\n'
-           +              '    }\n'
-           +              '  } else {\n'
-           +              '    for (int i = _lastgrip; i &gt;= ang; i -= 10) {\n'
-           +              '      _grip_pulse = ang;\n'
-           +              '      pause(25);\n'
-           +              '    }\n'
-           +              '  }    \n'
-           +              '  _lastgrip = ang;\n'
            +              '}  \n'
            +              '\n'
            +              'void arm_wait() {\n'
-           +              '  pause(75);\n'
-           +              '  while (_maxerror &gt; 2) {pause(50);}\n'
+           +              '  if (_servos_started) {\n'
+           +              '    pause(75);\n'
+           +              '    while (_maxerror &gt; 2) {pause(50);}\n'
+           +              '  }\n'
            +              '}\n'
            +              '\n'
            +              '/* int gforce(int i, int pos) {\n'
@@ -1863,69 +1870,88 @@ xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_valu
            +              '*/\n'
            +              '\n'
            +              'int number(const char *digits) {\n'
+           +              '  char c;\n'
            +              '  int value = 0;\n'
+           +              '  while ((c = *digits++) == &#39; &#39;) {}\n'
            +              '  while (1) {\n'
-           +              '    char c = *digits++;\n'
            +              '    if (c &gt;= &#39;0&#39; &amp;&amp; c &lt;= &#39;9&#39;) {\n'
            +              '      value = value * 10 + c - &#39;0&#39;;\n'
            +              '    } else {\n'
            +              '      return value;\n'
            +              '    }\n'
+           +              '    c = *digits++;\n'
            +              '  }\n'
            +              '}    \n'
            +              '\n'
            +              'void chain(const char *cmds) {\n'
-           +              '  char c;\n'
-           +              '  while (1) {\n'
-           +              '    switch (c = *cmds++) {\n'
-           +              '      case &#39;S&#39;:\n'
-           +              '      case &#39;s&#39;:\n'
-           +              '        _nextspd = number(cmds);\n'
-           +              '        break;\n'
-           +              '      case &#39;L&#39;:\n'
-           +              '      case &#39;l&#39;:\n'
-           +              '        run_servo(MY_LIFT, number(cmds));\n'
-           +              '        break;\n'
-           +              '      case &#39;C&#39;:\n'
-           +              '      case &#39;c&#39;:\n'
-           +              '        run_servo(MY_CURL, number(cmds));\n'
-           +              '        break;\n'
-           +              '      case &#39;R&#39;:\n'
-           +              '      case &#39;r&#39;:\n'
-           +              '        run_servo(MY_ROTATE, number(cmds));\n'
-           +              '        break;\n'
-           +              '      case &#39;W&#39;:\n'
-           +              '      case &#39;w&#39;:\n'
-           +              '        arm_wait();\n'
-           +              '        pause(number(cmds));\n'
-           +              '        break;\n'
-           +              '      case &#39;P&#39;:\n'
-           +              '      case &#39;p&#39;:\n'
-           +              '        pause(number(cmds));\n'
-           +              '        break;\n'
-           +              '      case &#39;G&#39;:\n'
-           +              '      case &#39;g&#39;:\n'
-           +              '        grip_angle(number(cmds));\n'
-           +              '        break;\n'
-           +              '      case 0:\n'
-           +              '        return;\n'
+           +              '  if (_servos_started) {\n'
+           +              '    char c;\n'
+           +              '    while (1) {\n'
+           +              '      switch (c = *cmds++) {\n'
+           +              '        case &#39;S&#39;:\n'
+           +              '        case &#39;s&#39;:\n'
+           +              '          _nextspd = number(cmds);\n'
+           +              '          break;\n'
+           +              '        case &#39;L&#39;:\n'
+           +              '        case &#39;l&#39;:\n'
+           +              '          run_servo(MY_LIFT, number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;C&#39;:\n'
+           +              '        case &#39;c&#39;:\n'
+           +              '          run_servo(MY_CURL, number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;R&#39;:\n'
+           +              '        case &#39;r&#39;:\n'
+           +              '          run_servo(MY_ROTATE, number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;W&#39;:\n'
+           +              '        case &#39;w&#39;:\n'
+           +              '          arm_wait();\n'
+           +              '          pause(number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;P&#39;:\n'
+           +              '        case &#39;p&#39;:\n'
+           +              '          pause(number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;G&#39;:\n'
+           +              '        case &#39;g&#39;:\n'
+           +              '          grip_angle(number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;/&#39;:\n'
+           +              '          while (1) {\n'
+           +              '            c = *cmds++;\n'
+           +              '            pulse_out(0, 50);\n'
+           +              '            if (c == &#39;\\n'
+           +              '&#39;) break;\n'
+           +              '            if (c = 0) return;\n'
+           +              '          }\n'
+           +              '          break;\n'
+           +              '        case 0:\n'
+           +              '          return;\n'
+           +              '      }\n'
            +              '    }\n'
            +              '  }\n'
            +              '}\n'
            +              '\n'
            +              'void set_speed(int spd) {\n'
-           +              '  _nextspd = constrainInt(spd * 6 / 10, 20, 60);\n'
+           +              '  if (_servos_started) {\n'
+           +              '    _nextspd = constrainInt(spd, 30, 100);\n'
+           +              '  }\n'
            +              '}\n'
            +              '\n'
            +              'int get_position(int i) {\n'
-           +              '  switch (i) {\n'
-           +              '    case 0: /* MY_LIFT */\n'
-           +              '    case 2: /* MY_ROTATE */\n'
-           +              '      return _currpos[i];\n'
-           +              '    case 1: /* MY_CURL */\n'
-           +              '      return 999 - _currpos[MY_CURL];\n'
-           +              '    default:\n'
-           +              '      return 0;\n'
+           +              '  if (_servos_started) {\n'
+           +              '    switch (i) {\n'
+           +              '      case 0: /* MY_LIFT */\n'
+           +              '      case 2: /* MY_ROTATE */\n'
+           +              '        return _currpos[i];\n'
+           +              '      case 1: /* MY_CURL */\n'
+           +              '        return 999 - _currpos[MY_CURL];\n'
+           +              '      default:\n'
+           +              '        return 0;\n'
+           +              '    }\n'
+           +              '  } else {\n'
+           +              '    return 0;\n'
            +              '  }\n'
            +              '} \n'
            +              '\n'
@@ -1947,109 +1973,375 @@ xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_valu
            +              '      if (t1 == 0) continue;\n'
            +              '      int t2 = (pulse_in(_feedback[i], 0));\n'
            +              '      int pos = constrainInt(( ((1000 * t1) / (t1 + t2)) - 29) * 1000 / 941, 0, 999);\n'
+           +              '      int err;\n'
            +              '/*      int gravity = (gforce(i, pos) * _defaultbias[i]) &gt;&gt; 8; */\n'
            +              '      if (_targpos[i] &gt; 0) {\n'
-           +              '        int err = abs(_currt[i] - _totalt[i]);\n'
+           +              '        err = abs(_currt[i] - _totalt[i]);\n'
            +              '        if (err &gt; maxerr) maxerr = err;\n'
            +              '        _currt[i] = constrainInt(_currt[i] + 256, 0, _totalt[i]);\n'
            +              '        int relpos = sigmoid(_currt[i], _totalt[i]);\n'
            +              '        _interpos[i] = (_initpos[i] * (32767 - relpos) + _targpos[i] * relpos) &gt;&gt; 15;\n'
-           +              '        err = _interpos[i] - pos;\n'
-           +              '        int errspd = -err * 2;\n'
+           +              '        int errp = _interpos[i] - pos;\n'
+           +              '        int errspd = -errp * 2;\n'
            +              '         _servospd[i] = (_servospd[i] * 5  + errspd * 12) / 17;\n'
            +              '        if (_servospd[i] &lt; 0) {\n'
-           +              '          pulse_out(_servo[i], 1480 + _servospd[i]);\n'
+           +              '          pulse_out(_servo[i], 1477 + _servospd[i]);\n'
            +              '        } else {\n'
-           +              '          pulse_out(_servo[i], 1520 + _servospd[i]);\n'
+           +              '          pulse_out(_servo[i], 1523 + _servospd[i]);\n'
            +              '        }\n'
            +              '      }\n'
            +              '      _currpos[i] = pos;\n'
+           +              '      _error[i] = err;\n'
+           +              '    }\n'
+           +              '    _maxerror = maxerr;\n'
+           +              '    if (_grip_pulse) pulse_out(GRIP_PIN, _grip_pulse);\n'
+           +              '    while (CNT const int MY_MAXSPD = 100;\n'
+           +              'const int MY_MINSPD = 20;\n'
+           +              'const int MY_MAXPOS = 990;\n'
+           +              'const int MY_MINPOS = 10;\n'
+           +              'const int MY_LIFT = 0;\n'
+           +              'const int MY_CURL = 1;\n'
+           +              'const int MY_ROTATE = 2;\n'
+           +              'const int LIFT_ZERO = 215;\n'
+           +              'const int CURL_ZERO = 844;\n'
+           +              'const int GRIP_PIN = 13;\n'
+           +              '\n'
+           +              'int _servo[3] = {17, 15, 14};\n'
+           +              'int _feedback[3] = {16, 11, 10};\n'
+           +              'int _initpos[3] = {0, 0, 0};\n'
+           +              'int _interpos[3] = {0, 0, 0};\n'
+           +              'int _targpos[3] = {0, 0, 0};\n'
+           +              'int _speed[3] = {0, 0, 0};\n'
+           +              'int _currt[3] = {0, 0, 0};\n'
+           +              'int _totalt[3] = {0, 0, 0};\n'
+           +              'int _servospd[3]= {0, 0, 0};\n'
+           +              'int _currpos[3];\n'
+           +              'int _currspd[3];\n'
+           +              '/* int _armangle[3]; */\n'
+           +              '/* int _zeroangle[3] = {215, 844, 500}; */\n'
+           +              'int _nextspd = 20;\n'
+           +              'int _lastgrip = 200;\n'
+           +              'int _maxerror = 0;\n'
+           +              'int _error[3] = {0, 0, 0};\n'
+           +              'int _t;\n'
+           +              'int _grip_pulse = 0;\n'
+           +              'int _servos_started = 0;\n'
+           +              '\n'
+           +              'short _sigmoid[257] = {\n'
+           +              '      0,    8,   16,   25,   34,   44,   54,   64,   75,   86,   97,  109,  122,  135,  149,  163,\n'
+           +              '    178,  193,  209,  225,  242,  260,  279,  298,  318,  339,  361,  383,  407,  431,  456,  483,\n'
+           +              '    510,  538,  568,  599,  630,  663,  698,  733,  771,  809,  849,  890,  933,  978, 1024, 1073,\n'
+           +              '   1122, 1174, 1228, 1284, 1342, 1401, 1464, 1528, 1595, 1664, 1736, 1810, 1887, 1966, 2049, 2134,\n'
+           +              '   2223, 2314, 2409, 2506, 2608, 2712, 2820, 2932, 3047, 3166, 3289, 3416, 3547, 3682, 3822, 3965,\n'
+           +              '   4113, 4265, 4422, 4584, 4750, 4921, 5096, 5277, 5462, 5653, 5848, 6048, 6254, 6464, 6680, 6900,\n'
+           +              '   7126, 7357, 7593, 7834, 8080, 8331, 8587, 8848, 9113, 9384, 9659, 9938,10222,10510,10802,11098,\n'
+           +              '  11398,11701,12008,12318,12631,12947,13266,13587,13911,14236,14563,14891,15220,15551,15882,16213,\n'
+           +              '  16545,16876,17207,17538,17867,18196,18523,18848,19171,19492,19811,20127,20440,20750,21057,21361,\n'
+           +              '  21660,21956,22249,22536,22820,23100,23374,23645,23910,24171,24427,24678,24924,25165,25401,25632,\n'
+           +              '  25858,26078,26294,26505,26710,26910,27106,27296,27481,27662,27837,28008,28174,28336,28493,28645,\n'
+           +              '  28793,28937,29076,29211,29342,29469,29592,29711,29826,29938,30046,30151,30252,30350,30444,30536,\n'
+           +              '  30624,30709,30792,30871,30948,31023,31094,31163,31230,31295,31357,31417,31475,31530,31584,31636,\n'
+           +              '  31686,31734,31780,31825,31868,31909,31949,31988,32025,32060,32095,32128,32160,32190,32220,32248,\n'
+           +              '  32275,32302,32327,32351,32375,32397,32419,32440,32460,32479,32498,32516,32533,32549,32565,32581,\n'
+           +              '  32595,32610,32623,32636,32649,32661,32672,32684,32694,32705,32715,32724,32733,32742,32751,32759,\n'
+           +              '  32767\n'
+           +              '};\n'
+           +              '\n'
+           +              'char _cos[251] = {\n'
+           +              '  255,255,255,255,255,255,255,255,255,255,\n'
+           +              '  254,254,254,254,254,254,254,254,253,253,\n'
+           +              '  253,253,253,252,252,252,252,251,251,251,\n'
+           +              '  250,250,250,250,249,249,249,248,248,247,\n'
+           +              '  247,247,246,246,245,245,244,244,243,243,\n'
+           +              '  243,242,242,241,240,240,239,239,238,238,\n'
+           +              '  237,236,236,235,235,234,233,233,232,231,\n'
+           +              '  231,230,229,229,228,227,226,226,225,224,\n'
+           +              '  223,223,222,221,220,219,219,218,217,216,\n'
+           +              '  215,214,214,213,212,211,210,209,208,207,\n'
+           +              '  206,205,204,203,202,201,201,200,199,197,\n'
+           +              '  196,195,194,193,192,191,190,189,188,187,\n'
+           +              '  186,185,184,183,181,180,179,178,177,176,\n'
+           +              '  175,173,172,171,170,169,167,166,165,164,\n'
+           +              '  163,161,160,159,158,156,155,154,152,151,\n'
+           +              '  150,149,147,146,145,143,142,141,139,138,\n'
+           +              '  137,135,134,133,131,130,128,127,126,124,\n'
+           +              '  123,121,120,119,117,116,114,113,111,110,\n'
+           +              '  109,107,106,104,103,101,100, 98, 97, 95,\n'
+           +              '   94, 92, 91, 89, 88, 86, 85, 83, 82, 80,\n'
+           +              '   79, 77, 76, 74, 73, 71, 70, 68, 67, 65,\n'
+           +              '   63, 62, 60, 59, 57, 56, 54, 52, 51, 49,\n'
+           +              '   48, 46, 45, 43, 41, 40, 38, 37, 35, 34,\n'
+           +              '   32, 30, 29, 27, 26, 24, 22, 21, 19, 18,\n'
+           +              '   16, 14, 13, 11, 10,  8,  6,  5,  3,  2,\n'
+           +              '    0\n'
+           +              '};\n'
+           +              '\n'
+           +              'void run_servo(int i, int pos) {\n'
+           +              '  if (_servos_started) {\n'
+           +              '    if (i &gt;= 0 &amp;&amp; i &lt;= 2) {\n'
+           +              '      while (_error[i] &amp;&amp; _targpos[i]) {pause(25);}\n'
+           +              '      _targpos[i] = 0;\n'
+           +              '      if (pos &gt; 0) {\n'
+           +              '        pos = constrainInt(pos, MY_MINPOS, MY_MAXPOS);\n'
+           +              '        if (i == MY_CURL) pos = 999 - pos;\n'
+           +              '        _servospd[i] = 0;\n'
+           +              '        _currt[i] = 0;\n'
+           +              '        _speed[i] = constrainInt(i == 0 ? _nextspd : 2 * _nextspd / 3, MY_MINSPD, MY_MAXSPD) * 10;\n'
+           +              '        _totalt[i] = constrainInt((abs(pos - _currpos[i]) &lt;&lt; 15) / _speed[i], 1, 256000);\n'
+           +              '        _initpos[i] = _interpos[i] = _currpos[i];\n'
+           +              '        _targpos[i] = pos;\n'
+           +              '      }\n'
+           +              '      pause(25);\n'
+           +              '    }\n'
+           +              '  }\n'
+           +              '}\n'
+           +              '\n'
+           +              'void grip_angle(int angle) {\n'
+           +              '  if (_servos_started) {\n'
+           +              '    if (angle == 0) {\n'
+           +              '      _grip_pulse = 0;\n'
+           +              '      return;\n'
+           +              '    }\n'
+           +              '    int ang = constrainInt(angle, 0, 100) * 9 / 2 + 550;\n'
+           +              '    if (ang &gt; _lastgrip) {\n'
+           +              '      for (int i = _lastgrip; i &lt;= ang; i += 10) {\n'
+           +              '        _grip_pulse = ang;\n'
+           +              '        pause(25);\n'
+           +              '      }\n'
+           +              '    } else {\n'
+           +              '      for (int i = _lastgrip; i &gt;= ang; i -= 10) {\n'
+           +              '        _grip_pulse = ang;\n'
+           +              '        pause(25);\n'
+           +              '      }\n'
+           +              '    }    \n'
+           +              '    _lastgrip = ang;\n'
+           +              '  }\n'
+           +              '}  \n'
+           +              '\n'
+           +              'void arm_wait() {\n'
+           +              '  if (_servos_started) {\n'
+           +              '    pause(75);\n'
+           +              '    while (_maxerror &gt; 2) {pause(50);}\n'
+           +              '  }\n'
+           +              '}\n'
+           +              '\n'
+           +              '/* int gforce(int i, int pos) {\n'
+           +              '  int angle;\n'
+           +              '  switch (i) {\n'
+           +              '    case MY_LIFT:\n'
+           +              '      _armangle[MY_LIFT] = angle = (pos - _zeroangle[MY_LIFT]) / 3;\n'
+           +              '      angle = abs(angle);\n'
+           +              '      break;\n'
+           +              '    case MY_CURL:\n'
+           +              '      _armangle[MY_CURL] = angle = (999 - pos - _zeroangle[MY_CURL]) / 2;\n'
+           +              '      angle += _armangle[MY_LIFT];\n'
+           +              '      angle = abs(angle);\n'
+           +              '      break;\n'
+           +              '    default:\n'
+           +              '      return 0;\n'
+           +              '  }\n'
+           +              '  if (angle &gt; 250) angle = 500 - angle;\n'
+           +              '  return _gforce[i] = _cos[angle];\n'
+           +              '}\n'
+           +              '*/\n'
+           +              '\n'
+           +              'int number(const char *digits) {\n'
+           +              '  char c;\n'
+           +              '  int value = 0;\n'
+           +              '  while ((c = *digits++) == &#39; &#39;) {}\n'
+           +              '  while (1) {\n'
+           +              '    if (c &gt;= &#39;0&#39; &amp;&amp; c &lt;= &#39;9&#39;) {\n'
+           +              '      value = value * 10 + c - &#39;0&#39;;\n'
+           +              '    } else {\n'
+           +              '      return value;\n'
+           +              '    }\n'
+           +              '    c = *digits++;\n'
+           +              '  }\n'
+           +              '}    \n'
+           +              '\n'
+           +              'void chain(const char *cmds) {\n'
+           +              '  if (_servos_started) {\n'
+           +              '    char c;\n'
+           +              '    while (1) {\n'
+           +              '      switch (c = *cmds++) {\n'
+           +              '        case &#39;S&#39;:\n'
+           +              '        case &#39;s&#39;:\n'
+           +              '          _nextspd = number(cmds);\n'
+           +              '          break;\n'
+           +              '        case &#39;L&#39;:\n'
+           +              '        case &#39;l&#39;:\n'
+           +              '          run_servo(MY_LIFT, number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;C&#39;:\n'
+           +              '        case &#39;c&#39;:\n'
+           +              '          run_servo(MY_CURL, number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;R&#39;:\n'
+           +              '        case &#39;r&#39;:\n'
+           +              '          run_servo(MY_ROTATE, number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;W&#39;:\n'
+           +              '        case &#39;w&#39;:\n'
+           +              '          arm_wait();\n'
+           +              '          pause(number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;P&#39;:\n'
+           +              '        case &#39;p&#39;:\n'
+           +              '          pause(number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;G&#39;:\n'
+           +              '        case &#39;g&#39;:\n'
+           +              '          grip_angle(number(cmds));\n'
+           +              '          break;\n'
+           +              '        case &#39;/&#39;:\n'
+           +              '          while (1) {\n'
+           +              '            c = *cmds++;\n'
+           +              '            pulse_out(0, 50);\n'
+           +              '            if (c == &#39;\\n'
+           +              '&#39;) break;\n'
+           +              '            if (c = 0) return;\n'
+           +              '          }\n'
+           +              '          break;\n'
+           +              '        case 0:\n'
+           +              '          return;\n'
+           +              '      }\n'
+           +              '    }\n'
+           +              '  }\n'
+           +              '}\n'
+           +              '\n'
+           +              'void set_speed(int spd) {\n'
+           +              '  if (_servos_started) {\n'
+           +              '    _nextspd = constrainInt(spd, 30, 100);\n'
+           +              '  }\n'
+           +              '}\n'
+           +              '\n'
+           +              'int get_position(int i) {\n'
+           +              '  if (_servos_started) {\n'
+           +              '    switch (i) {\n'
+           +              '      case 0: /* MY_LIFT */\n'
+           +              '      case 2: /* MY_ROTATE */\n'
+           +              '        return _currpos[i];\n'
+           +              '      case 1: /* MY_CURL */\n'
+           +              '        return 999 - _currpos[MY_CURL];\n'
+           +              '      default:\n'
+           +              '        return 0;\n'
+           +              '    }\n'
+           +              '  } else {\n'
+           +              '    return 0;\n'
+           +              '  }\n'
+           +              '} \n'
+           +              '\n'
+           +              'int sigmoid(int curr_t, int total_t) {\n'
+           +              '  int i = curr_t * 4096 / total_t;\n'
+           +              '  int p = i % 16;\n'
+           +              '  i &gt;&gt;= 4;\n'
+           +              '  return (_sigmoid[i] * (16 - p) + _sigmoid[i + 1] * p) &gt;&gt; 4;\n'
+           +              '}\n'
+           +              '\n'
+           +              'void run_servos() {\n'
+           +              '  int _20ms = CLKFREQ / 52;\n'
+           +              '  while (1) {\n'
+           +              '    _t = CNT;\n'
+           +              '    int maxerr = 0;\n'
+           +              '    int srvspd;\n'
+           +              '    for (int i = 0; i &lt;= 2; i++) {\n'
+           +              '      int t1 = (pulse_in(_feedback[i], 1));\n'
+           +              '      if (t1 == 0) continue;\n'
+           +              '      int t2 = (pulse_in(_feedback[i], 0));\n'
+           +              '      int pos = constrainInt(( ((1000 * t1) / (t1 + t2)) - 29) * 1000 / 941, 0, 999);\n'
+           +              '      int err;\n'
+           +              '/*      int gravity = (gforce(i, pos) * _defaultbias[i]) &gt;&gt; 8; */\n'
+           +              '      if (_targpos[i] &gt; 0) {\n'
+           +              '        err = abs(_currt[i] - _totalt[i]);\n'
+           +              '        if (err &gt; maxerr) maxerr = err;\n'
+           +              '        _currt[i] = constrainInt(_currt[i] + 256, 0, _totalt[i]);\n'
+           +              '        int relpos = sigmoid(_currt[i], _totalt[i]);\n'
+           +              '        _interpos[i] = (_initpos[i] * (32767 - relpos) + _targpos[i] * relpos) &gt;&gt; 15;\n'
+           +              '        int errp = _interpos[i] - pos;\n'
+           +              '        int errspd = -errp * 2;\n'
+           +              '         _servospd[i] = (_servospd[i] * 5  + errspd * 12) / 17;\n'
+           +              '        if (_servospd[i] &lt; 0) {\n'
+           +              '          pulse_out(_servo[i], 1477 + _servospd[i]);\n'
+           +              '        } else {\n'
+           +              '          pulse_out(_servo[i], 1523 + _servospd[i]);\n'
+           +              '        }\n'
+           +              '      }\n'
+           +              '      _currpos[i] = pos;\n'
+           +              '      _error[i] = err;\n'
            +              '    }\n'
            +              '    _maxerror = maxerr;\n'
            +              '    if (_grip_pulse) pulse_out(GRIP_PIN, _grip_pulse);\n'
            +              '    while (CNT - _t &lt; _20ms) {}\n'
            +              '  }\n'
            +              '}\n'
-           +              '&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;LABEL_SET&quot;:&quot;Start Robot Arm&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="c[aVcI2qRuEh+@aDmMna" x="-883" y="-1909">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set arm&quot;,&quot;LABEL_ARG1&quot;:&quot;speed&quot;,&quot;MAIN&quot;:&quot;set_speed(@1+0);&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="6c:Jlqza)d,g}`rhLf?^" x="-881" y="-1832">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set lift&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_LIFT, @1+0);&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="YEvXy;r6rN{k44g9G?~Y" x="-881" y="-1758">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set curl&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_CURL, @1+0);&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="cpr}8CqXTFPUt}W2KiLb" x="-905" y="-1676">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set rotate&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_ROTATE, @1+0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="]B/In@e`0@D2!OXm/#bw" x="-899" y="-1597">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set grip&quot;,&quot;MAIN&quot;:&quot;grip_angle(@1 + 0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;TYPE&quot;:&quot;INL&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="0))f6DjP|:DFk.,l?/9m" x="-898" y="-1516">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Wait for arms&quot;,&quot;MAIN&quot;:&quot;arm_wait();\n'
-           +              '&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="NbpsIdZwGx%dt,/VIk)#" x="-892" y="-1460">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(@1);&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '              <value name="ARG1">';
-xmlToolbox += '                  <block colour="F00"  type="string_type_block_multiple" id="#q5k%Cj.6r)~(8M9lWX5">';
-xmlToolbox += '                      <field name="TEXT"/>';
-xmlToolbox += '                  </block>';
-xmlToolbox += '              </value>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="4@qsE09AK_9!W8rW7o%_" x="-884" y="-1375">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Lift position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_LIFT)&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="D$][cLdiucpT{Tu9RjmM" x="-878" y="-1321">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Curl Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_CURL)&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
-xmlToolbox += '          <block colour="F00" ';
-xmlToolbox += '              xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="IGi5V*UgzHbr1|+$`HU`" x="-879" y="-1268">';
-xmlToolbox += '              <mutation';
-xmlToolbox += '                  xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Rotate Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_ROTATE)&quot;}">';
-xmlToolbox += '              </mutation>';
-xmlToolbox += '              <field name="EDIT">FALSE</field>';
-xmlToolbox += '          </block>';
+           +              '\n'
+           +              'void start_servos() {\n'
+           +              '  if (_servos_started) return;\n'
+           +              '  cog_run(run_servos, 128);\n'
+           +              '  _servos_started = 1;\n'
+           +              '  pause(1000);\n'
+           +              '}\n'
+           +              '- _t &lt; _20ms) {}\n'
+           +              '  }\n'
+           +              '}\n'
+           +              '\n'
+           +              'void start_servos() {\n'
+           +              '  if (_servos_started) return;\n'
+           +              '  cog_run(run_servos, 128);\n'
+           +              '  _servos_started = 1;\n'
+           +              '  pause(1000);\n'
+           +              '}\n'
+           +              '&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;LABEL_SET&quot;:&quot;Start Robot Arm&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="c[aVcI2qRuEh+@aDmMna" x="-842" y="-1912">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set arm&quot;,&quot;LABEL_ARG1&quot;:&quot;speed&quot;,&quot;MAIN&quot;:&quot;set_speed(@1+0);\n'
+           +              '&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="6c:Jlqza)d,g}`rhLf?^" x="-908" y="-1849">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set lift&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_LIFT, @1+0);\n'
+           +              '&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="YEvXy;r6rN{k44g9G?~Y" x="-836" y="-1789">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set curl&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_CURL, @1+0);&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="cpr}8CqXTFPUt}W2KiLb" x="-910" y="-1720">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set rotate&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_ROTATE, @1+0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="0))f6DjP|:DFk.,l?/9m" x="-842" y="-1654">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Wait for arms&quot;,&quot;MAIN&quot;:&quot;arm_wait();\n'
+           +              '&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="]B/In@e`0@D2!OXm/#bw" x="-909" y="-1609">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set grip&quot;,&quot;MAIN&quot;:&quot;grip_angle(@1 + 0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="NbpsIdZwGx%dt,/VIk)#" x="-834" y="-1539">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(@1);&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '          <value name="ARG1">';
+xmlToolbox += '            <block colour="F00"  type="string_type_block_multiple" id="#q5k%Cj.6r)~(8M9lWX5">';
+xmlToolbox += '              <field name="TEXT" />';
+xmlToolbox += '            </block>';
+xmlToolbox += '          </value>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="4@qsE09AK_9!W8rW7o%_" x="-899" y="-1470">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Lift position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_LIFT)&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="D$][cLdiucpT{Tu9RjmM" x="-898" y="-1430">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Curl Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_CURL)&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="IGi5V*UgzHbr1|+$`HU`" x="-898" y="-1389">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Rotate Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_ROTATE)&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
 xmlToolbox += '     </category>';
 xmlToolbox += '   </xml>';
 
@@ -2185,12 +2477,12 @@ function filterToolbox(project) {
 
     // turn the custom category XML into a string so it can be added back into a save (SVG) file.
     if (projectData && customCategoryList && customCategoryList.length > 0) {
-        projectData.categories = '';	
-        for (let j = 0; j < customCategoryList.length; j++) {	
-            if (customCategoryList[j] && customCategoryList[j].outerHTML) {	
-                projectData.categories += customCategoryList[j].outerHTML;	
-            }	
-        }	
-    }	
-    return outStr;	
+        projectData.categories = '';
+        for (let j = 0; j < customCategoryList.length; j++) {
+            if (customCategoryList[j] && customCategoryList[j].outerHTML) {
+                projectData.categories += customCategoryList[j].outerHTML;
+            }
+        }
+    }
+    return outStr;
 }
