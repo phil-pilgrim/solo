@@ -1718,8 +1718,8 @@ xmlToolbox += '        <block type="register_get"></block>';
 xmlToolbox += '        <block type="system_counter" include="other,"></block>';
 xmlToolbox += '    </category>';
 xmlToolbox += '    <category name="PTHS Robot Arm" include="activity-board," colour="#B00000">';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="gND^n:Y+vVu4NcaGZmGn" x="-902" y="-1958">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;MAIN&quot;:&quot;start_servos();&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;const int MY_MAXSPD = 100;\n'
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="gND^n:Y+vVu4NcaGZmGn" x="-902" y="-1958">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;MAIN&quot;:&quot;start_servos();&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;INCLUDES&quot;:&quot;const int MY_MAXSPD = 100;\n'
            +              'const int MY_MINSPD = 20;\n'
            +              'const int MY_MAXPOS = 990;\n'
            +              'const int MY_MINPOS = 10;\n'
@@ -2054,64 +2054,64 @@ xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_
            +              '  pause(500);\n'
            +              '}\n'
            +              '&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;LABEL_SET&quot;:&quot;Start Robot Arm&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="c[aVcI2qRuEh+@aDmMna" x="-842" y="-1912">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set arm&quot;,&quot;LABEL_ARG1&quot;:&quot;speed&quot;,&quot;MAIN&quot;:&quot;set_speed(@1+0);\n'
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="c[aVcI2qRuEh+@aDmMna" x="-842" y="-1912">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set arm&quot;,&quot;LABEL_ARG1&quot;:&quot;speed&quot;,&quot;MAIN&quot;:&quot;set_speed(@1+0);\n'
            +              '&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="6c:Jlqza)d,g}`rhLf?^" x="-867" y="-1825">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set lift&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_LIFT, @1+0);\n'
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="6c:Jlqza)d,g}`rhLf?^" x="-867" y="-1825">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set lift&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_LIFT, @1+0);\n'
            +              '&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="YEvXy;r6rN{k44g9G?~Y" x="-833" y="-1771">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set curl&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_CURL, @1+0);&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="cpr}8CqXTFPUt}W2KiLb" x="-951" y="-1717">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set rotate&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_ROTATE, @1+0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="0))f6DjP|:DFk.,l?/9m" x="-842" y="-1654">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Wait for arms&quot;,&quot;MAIN&quot;:&quot;arm_wait();\n'
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="YEvXy;r6rN{k44g9G?~Y" x="-833" y="-1771">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set curl&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_CURL, @1+0);&quot;,&quot;FUNCTIONS&quot;:&quot;&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;,&quot;INCLUDES&quot;:&quot;&quot;,&quot;GLOBALS&quot;:&quot;&quot;,&quot;SETUPS&quot;:&quot;&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="cpr}8CqXTFPUt}W2KiLb" x="-951" y="-1717">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set rotate&quot;,&quot;MAIN&quot;:&quot;run_servo(MY_ROTATE, @1+0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;LABEL_ARG3&quot;:&quot;Wait?&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="0))f6DjP|:DFk.,l?/9m" x="-842" y="-1654">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Wait for arms&quot;,&quot;MAIN&quot;:&quot;arm_wait();\n'
            +              '&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="]B/In@e`0@D2!OXm/#bw" x="-934" y="-1604">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set grip&quot;,&quot;MAIN&quot;:&quot;grip_angle(@1 + 0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="NbpsIdZwGx%dt,/VIk)#" x="-836" y="-1531">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(@1);&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '            <value name="ARG1">';
-xmlToolbox += '               <block colour="F00"  type="string_type_block_multiple" id="#q5k%Cj.6r)~(8M9lWX5">';
-xmlToolbox += '                  <field name="TEXT" />';
-xmlToolbox += '               </block>';
-xmlToolbox += '            </value>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="NWqsu#enaCRKYUb76!~;" x="-953" y="-1483">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;3&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Multi-sync&quot;,&quot;LABEL_ARG1&quot;:&quot;Lift&quot;,&quot;LABEL_ARG2&quot;:&quot;Curl&quot;,&quot;LABEL_ARG3&quot;:&quot;Rotate&quot;,&quot;MAIN&quot;:&quot;sync_servos(@1 + 0, @2 + 0, @3 + 0);&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="4@qsE09AK_9!W8rW7o%_" x="-939" y="-1366">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Lift position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_LIFT)&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="D$][cLdiucpT{Tu9RjmM" x="-941" y="-1325">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Curl Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_CURL)&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="IGi5V*UgzHbr1|+$`HU`" x="-943" y="-1284">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Rotate Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_ROTATE)&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
-xmlToolbox += '         <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="A3].D+pgnQy.4nnusEhp" x="-958" y="-1213">';
-xmlToolbox += '            <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;6&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_ARG1&quot;:&quot;kP (250)&quot;,&quot;LABEL_ARG2&quot;:&quot;kI (10)&quot;,&quot;LABEL_ARG3&quot;:&quot;kD (2500)&quot;,&quot;LABEL_SET&quot;:&quot;Constants&quot;,&quot;LABEL_ARG4&quot;:&quot;pMinV (31)&quot;,&quot;LABEL_ARG5&quot;:&quot;pMaxV (15)&quot;,&quot;LABEL_ARG6&quot;:&quot;dI (99)&quot;,&quot;MAIN&quot;:&quot;redefine_constants(@1 + 0, @2 + 0, @3 + 0, @4 + 0, @5 + 0, @6 + 0);&quot;}" />';
-xmlToolbox += '            <field name="EDIT">FALSE</field>';
-xmlToolbox += '         </block>';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="]B/In@e`0@D2!OXm/#bw" x="-934" y="-1604">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Set grip&quot;,&quot;MAIN&quot;:&quot;grip_angle(@1 + 0);&quot;,&quot;LABEL_ARG1&quot;:&quot;position&quot;,&quot;LABEL_ARG2&quot;:&quot;Speed&quot;,&quot;TYPE&quot;:&quot;INL&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="NWqsu#enaCRKYUb76!~;" x="-825" y="-1550">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;3&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Multi-sync&quot;,&quot;LABEL_ARG1&quot;:&quot;Lift&quot;,&quot;LABEL_ARG2&quot;:&quot;Curl&quot;,&quot;LABEL_ARG3&quot;:&quot;Rotate&quot;,&quot;MAIN&quot;:&quot;sync_servos(@1 + 0, @2 + 0, @3 + 0);&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="NbpsIdZwGx%dt,/VIk)#" x="-947" y="-1436">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;1&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Chain arm&quot;,&quot;LABEL_ARG1&quot;:&quot;commands&quot;,&quot;MAIN&quot;:&quot;chain(@1);&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '          <value name="ARG1">';
+xmlToolbox += '            <block colour="F00"  type="string_type_block_multiple" id="#q5k%Cj.6r)~(8M9lWX5">';
+xmlToolbox += '              <field name="TEXT" />';
+xmlToolbox += '            </block>';
+xmlToolbox += '          </value>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="4@qsE09AK_9!W8rW7o%_" x="-939" y="-1366">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Lift position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_LIFT)&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="D$][cLdiucpT{Tu9RjmM" x="-941" y="-1325">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Curl Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_CURL)&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="IGi5V*UgzHbr1|+$`HU`" x="-943" y="-1284">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;0&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_SET&quot;:&quot;Rotate Position&quot;,&quot;TYPE&quot;:&quot;NUM&quot;,&quot;MAIN&quot;:&quot;get_position(MY_ROTATE)&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
+xmlToolbox += '        <block colour="F00"  xmlns="https://developers.google.com/blockly/xml" type="custom_code_multiple_locked" id="A3].D+pgnQy.4nnusEhp" x="-958" y="-1213">';
+xmlToolbox += '          <mutation xmlns="http://www.w3.org/1999/xhtml" field_values="{&quot;ARG_COUNT&quot;:&quot;6&quot;,&quot;COLOR&quot;:&quot;#b00000&quot;,&quot;EDIT&quot;:&quot;FALSE&quot;,&quot;LABEL_ARG1&quot;:&quot;kP (250)&quot;,&quot;LABEL_ARG2&quot;:&quot;kI (10)&quot;,&quot;LABEL_ARG3&quot;:&quot;kD (2500)&quot;,&quot;LABEL_SET&quot;:&quot;Constants&quot;,&quot;LABEL_ARG4&quot;:&quot;pMinV (31)&quot;,&quot;LABEL_ARG5&quot;:&quot;pMaxV (15)&quot;,&quot;LABEL_ARG6&quot;:&quot;dI (99)&quot;,&quot;MAIN&quot;:&quot;redefine_constants(@1 + 0, @2 + 0, @3 + 0, @4 + 0, @5 + 0, @6 + 0);&quot;}" />';
+xmlToolbox += '          <field name="EDIT">FALSE</field>';
+xmlToolbox += '        </block>';
 xmlToolbox += '     </category>';
 xmlToolbox += '   </xml>';
 
